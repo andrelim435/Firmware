@@ -32,18 +32,14 @@
  ****************************************************************************/
 
 /**
- * @file mc_att_control_main.cpp
- * Multicopter attitude controller.
+ * @file mc_6dof_control_main.cpp
+ * Multicopter 6dof position & attitude controller
  *
- * @author Lorenz Meier		<lorenz@px4.io>
- * @author Anton Babushkin	<anton.babushkin@me.com>
- * @author Sander Smeets	<sander@droneslab.com>
- * @author Matthias Grob	<maetugr@gmail.com>
- * @author Beat Küng		<beat-kueng@gmx.net>
+ * @author Andre Lim		<andrelim435@hotmail.com>
  *
  */
 
-#include "mc_att_control.hpp"
+#include "mc_6dof_control.hpp"
 
 #include <conversion/rotation.h>
 #include <drivers/drv_hrt.h>

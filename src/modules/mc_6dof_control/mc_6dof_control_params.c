@@ -51,7 +51,7 @@
  * @increment 0.1
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ROLL_P, 6.5f);
+PARAM_DEFINE_FLOAT(MC6_ROLL_P, 6.5f);
 
 /**
  * Roll rate P gain
@@ -64,7 +64,7 @@ PARAM_DEFINE_FLOAT(MC_ROLL_P, 6.5f);
  * @increment 0.01
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ROLLRATE_P, 0.15f);
+PARAM_DEFINE_FLOAT(MC6_ROLLRATE_P, 0.15f);
 
 /**
  * Roll rate I gain
@@ -76,7 +76,7 @@ PARAM_DEFINE_FLOAT(MC_ROLLRATE_P, 0.15f);
  * @increment 0.01
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ROLLRATE_I, 0.2f);
+PARAM_DEFINE_FLOAT(MC6_ROLLRATE_I, 0.2f);
 
 /**
  * Roll rate integrator limit
@@ -88,7 +88,7 @@ PARAM_DEFINE_FLOAT(MC_ROLLRATE_I, 0.2f);
  * @increment 0.01
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_RR_INT_LIM, 0.30f);
+PARAM_DEFINE_FLOAT(MC6_RR_INT_LIM, 0.30f);
 
 /**
  * Roll rate D gain
@@ -101,7 +101,7 @@ PARAM_DEFINE_FLOAT(MC_RR_INT_LIM, 0.30f);
  * @increment 0.0005
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ROLLRATE_D, 0.003f);
+PARAM_DEFINE_FLOAT(MC6_ROLLRATE_D, 0.003f);
 
 /**
  * Roll rate feedforward
@@ -112,7 +112,7 @@ PARAM_DEFINE_FLOAT(MC_ROLLRATE_D, 0.003f);
  * @decimal 4
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ROLLRATE_FF, 0.0f);
+PARAM_DEFINE_FLOAT(MC6_ROLLRATE_FF, 0.0f);
 
 /**
  * Pitch P gain
@@ -126,7 +126,7 @@ PARAM_DEFINE_FLOAT(MC_ROLLRATE_FF, 0.0f);
  * @increment 0.1
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_PITCH_P, 6.5f);
+PARAM_DEFINE_FLOAT(MC6_PITCH_P, 6.5f);
 
 /**
  * Pitch rate P gain
@@ -139,7 +139,7 @@ PARAM_DEFINE_FLOAT(MC_PITCH_P, 6.5f);
  * @increment 0.01
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_PITCHRATE_P, 0.15f);
+PARAM_DEFINE_FLOAT(MC6_PITCHRATE_P, 0.15f);
 
 /**
  * Pitch rate I gain
@@ -151,7 +151,7 @@ PARAM_DEFINE_FLOAT(MC_PITCHRATE_P, 0.15f);
  * @increment 0.01
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_PITCHRATE_I, 0.2f);
+PARAM_DEFINE_FLOAT(MC6_PITCHRATE_I, 0.2f);
 
 /**
  * Pitch rate integrator limit
@@ -163,7 +163,7 @@ PARAM_DEFINE_FLOAT(MC_PITCHRATE_I, 0.2f);
  * @increment 0.01
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_PR_INT_LIM, 0.30f);
+PARAM_DEFINE_FLOAT(MC6_PR_INT_LIM, 0.30f);
 
 /**
  * Pitch rate D gain
@@ -175,7 +175,7 @@ PARAM_DEFINE_FLOAT(MC_PR_INT_LIM, 0.30f);
  * @increment 0.0005
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_PITCHRATE_D, 0.003f);
+PARAM_DEFINE_FLOAT(MC6_PITCHRATE_D, 0.003f);
 
 /**
  * Pitch rate feedforward
@@ -186,7 +186,7 @@ PARAM_DEFINE_FLOAT(MC_PITCHRATE_D, 0.003f);
  * @decimal 4
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_PITCHRATE_FF, 0.0f);
+PARAM_DEFINE_FLOAT(MC6_PITCHRATE_FF, 0.0f);
 
 /**
  * Yaw P gain
@@ -200,7 +200,7 @@ PARAM_DEFINE_FLOAT(MC_PITCHRATE_FF, 0.0f);
  * @increment 0.1
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_YAW_P, 2.8f);
+PARAM_DEFINE_FLOAT(MC6_YAW_P, 2.8f);
 
 /**
  * Yaw rate P gain
@@ -213,7 +213,7 @@ PARAM_DEFINE_FLOAT(MC_YAW_P, 2.8f);
  * @increment 0.01
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_YAWRATE_P, 0.2f);
+PARAM_DEFINE_FLOAT(MC6_YAWRATE_P, 0.2f);
 
 /**
  * Yaw rate I gain
@@ -225,7 +225,7 @@ PARAM_DEFINE_FLOAT(MC_YAWRATE_P, 0.2f);
  * @increment 0.01
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_YAWRATE_I, 0.1f);
+PARAM_DEFINE_FLOAT(MC6_YAWRATE_I, 0.1f);
 
 /**
  * Yaw rate integrator limit
@@ -237,7 +237,7 @@ PARAM_DEFINE_FLOAT(MC_YAWRATE_I, 0.1f);
  * @increment 0.01
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_YR_INT_LIM, 0.30f);
+PARAM_DEFINE_FLOAT(MC6_YR_INT_LIM, 0.30f);
 
 /**
  * Yaw rate D gain
@@ -249,7 +249,7 @@ PARAM_DEFINE_FLOAT(MC_YR_INT_LIM, 0.30f);
  * @increment 0.01
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_YAWRATE_D, 0.0f);
+PARAM_DEFINE_FLOAT(MC6_YAWRATE_D, 0.0f);
 
 /**
  * Yaw rate feedforward
@@ -261,7 +261,7 @@ PARAM_DEFINE_FLOAT(MC_YAWRATE_D, 0.0f);
  * @increment 0.01
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_YAWRATE_FF, 0.0f);
+PARAM_DEFINE_FLOAT(MC6_YAWRATE_FF, 0.0f);
 
 /**
  * Max roll rate
@@ -280,7 +280,7 @@ PARAM_DEFINE_FLOAT(MC_YAWRATE_FF, 0.0f);
  * @increment 5
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ROLLRATE_MAX, 220.0f);
+PARAM_DEFINE_FLOAT(MC6_ROLLRATE_MAX, 220.0f);
 
 /**
  * Max pitch rate
@@ -299,7 +299,7 @@ PARAM_DEFINE_FLOAT(MC_ROLLRATE_MAX, 220.0f);
  * @increment 5
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_PITCHRATE_MAX, 220.0f);
+PARAM_DEFINE_FLOAT(MC6_PTCHRATE_MAX, 220.0f);
 
 /**
  * Max yaw rate
@@ -311,7 +311,7 @@ PARAM_DEFINE_FLOAT(MC_PITCHRATE_MAX, 220.0f);
  * @increment 5
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_YAWRATE_MAX, 200.0f);
+PARAM_DEFINE_FLOAT(MC6_YAWRATE_MAX, 200.0f);
 
 /**
  * Max acro roll rate
@@ -324,7 +324,7 @@ PARAM_DEFINE_FLOAT(MC_YAWRATE_MAX, 200.0f);
  * @increment 5
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ACRO_R_MAX, 720.0f);
+PARAM_DEFINE_FLOAT(MC6_ACRO_R_MAX, 720.0f);
 
 /**
  * Max acro pitch rate
@@ -337,7 +337,7 @@ PARAM_DEFINE_FLOAT(MC_ACRO_R_MAX, 720.0f);
  * @increment 5
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ACRO_P_MAX, 720.0f);
+PARAM_DEFINE_FLOAT(MC6_ACRO_P_MAX, 720.0f);
 
 /**
  * Max acro yaw rate
@@ -350,7 +350,7 @@ PARAM_DEFINE_FLOAT(MC_ACRO_P_MAX, 720.0f);
  * @increment 5
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ACRO_Y_MAX, 540.0f);
+PARAM_DEFINE_FLOAT(MC6_ACRO_Y_MAX, 540.0f);
 
 /**
  * Acro mode Expo factor for Roll and Pitch.
@@ -365,7 +365,7 @@ PARAM_DEFINE_FLOAT(MC_ACRO_Y_MAX, 540.0f);
  * @decimal 2
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ACRO_EXPO, 0.69f);
+PARAM_DEFINE_FLOAT(MC6_ACRO_EXPO, 0.69f);
 
 /**
  * Acro mode Expo factor for Yaw.
@@ -380,12 +380,12 @@ PARAM_DEFINE_FLOAT(MC_ACRO_EXPO, 0.69f);
  * @decimal 2
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ACRO_EXPO_Y, 0.69f);
+PARAM_DEFINE_FLOAT(MC6_ACRO_EXPO_Y, 0.69f);
 
 /**
  * Acro mode SuperExpo factor for Roll and Pitch.
  *
- * SuperExpo factor for refining the input curve shape tuned using MC_ACRO_EXPO.
+ * SuperExpo factor for refining the input curve shape tuned using MC6_ACRO_EXPO.
  *
  * 0 Pure Expo function
  * 0.7 resonable shape enhancement for intuitive stick feel
@@ -396,12 +396,12 @@ PARAM_DEFINE_FLOAT(MC_ACRO_EXPO_Y, 0.69f);
  * @decimal 2
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ACRO_SUPEXPO, 0.7f);
+PARAM_DEFINE_FLOAT(MC6_ACRO_SUPEXPO, 0.7f);
 
 /**
  * Acro mode SuperExpo factor for Yaw.
  *
- * SuperExpo factor for refining the input curve shape tuned using MC_ACRO_EXPO_Y.
+ * SuperExpo factor for refining the input curve shape tuned using MC6_ACRO_EXPO_Y.
  *
  * 0 Pure Expo function
  * 0.7 resonable shape enhancement for intuitive stick feel
@@ -412,7 +412,7 @@ PARAM_DEFINE_FLOAT(MC_ACRO_SUPEXPO, 0.7f);
  * @decimal 2
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ACRO_SUPEXPOY, 0.7f);
+PARAM_DEFINE_FLOAT(MC6_ACRO_SUPEXPY, 0.7f);
 
 /**
  * Threshold for Rattitude mode
@@ -426,7 +426,7 @@ PARAM_DEFINE_FLOAT(MC_ACRO_SUPEXPOY, 0.7f);
  * @increment 0.01
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_RATT_TH, 0.8f);
+PARAM_DEFINE_FLOAT(MC6_RATT_TH, 0.8f);
 
 /**
  * Battery power level scaler
@@ -440,7 +440,7 @@ PARAM_DEFINE_FLOAT(MC_RATT_TH, 0.8f);
  * @boolean
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_INT32(MC_BAT_SCALE_EN, 0);
+PARAM_DEFINE_INT32(MC6_BAT_SCALE_EN, 0);
 
 /**
  * TPA P Breakpoint
@@ -454,7 +454,7 @@ PARAM_DEFINE_INT32(MC_BAT_SCALE_EN, 0);
  * @increment 0.1
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_TPA_BREAK_P, 1.0f);
+PARAM_DEFINE_FLOAT(MC6_TPA_BREAK_P, 1.0f);
 
 /**
  * TPA I Breakpoint
@@ -468,7 +468,7 @@ PARAM_DEFINE_FLOAT(MC_TPA_BREAK_P, 1.0f);
  * @increment 0.1
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_TPA_BREAK_I, 1.0f);
+PARAM_DEFINE_FLOAT(MC6_TPA_BREAK_I, 1.0f);
 
 /**
  * TPA D Breakpoint
@@ -482,7 +482,7 @@ PARAM_DEFINE_FLOAT(MC_TPA_BREAK_I, 1.0f);
  * @increment 0.1
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_TPA_BREAK_D, 1.0f);
+PARAM_DEFINE_FLOAT(MC6_TPA_BREAK_D, 1.0f);
 
 /**
  * TPA Rate P
@@ -498,7 +498,7 @@ PARAM_DEFINE_FLOAT(MC_TPA_BREAK_D, 1.0f);
  * @increment 0.05
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_TPA_RATE_P, 0.0f);
+PARAM_DEFINE_FLOAT(MC6_TPA_RATE_P, 0.0f);
 
 /**
  * TPA Rate I
@@ -514,7 +514,7 @@ PARAM_DEFINE_FLOAT(MC_TPA_RATE_P, 0.0f);
  * @increment 0.05
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_TPA_RATE_I, 0.0f);
+PARAM_DEFINE_FLOAT(MC6_TPA_RATE_I, 0.0f);
 
 /**
  * TPA Rate D
@@ -530,7 +530,7 @@ PARAM_DEFINE_FLOAT(MC_TPA_RATE_I, 0.0f);
  * @increment 0.05
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_TPA_RATE_D, 0.0f);
+PARAM_DEFINE_FLOAT(MC6_TPA_RATE_D, 0.0f);
 
 /**
  * Cutoff frequency for the low pass filter on the D-term in the rate controller
@@ -547,7 +547,7 @@ PARAM_DEFINE_FLOAT(MC_TPA_RATE_D, 0.0f);
  * @increment 10
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_DTERM_CUTOFF, 0.f);
+PARAM_DEFINE_FLOAT(MC6_DTERM_CUTOFF, 0.f);
 
 /**
  * Multicopter air-mode
@@ -565,5 +565,5 @@ PARAM_DEFINE_FLOAT(MC_DTERM_CUTOFF, 0.f);
  * @value 2 Roll/Pitch/Yaw
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_INT32(MC_AIRMODE, 0);
+PARAM_DEFINE_INT32(MC6_AIRMODE, 0);
 

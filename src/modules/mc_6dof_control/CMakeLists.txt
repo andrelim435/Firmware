@@ -31,7 +31,7 @@
 #
 ############################################################################
 
-add_subdirectory(AttitudeControl)
+# add_subdirectory(AttitudeControl)
 
 px4_add_module(
 	MODULE modules__mc_6dof_control
