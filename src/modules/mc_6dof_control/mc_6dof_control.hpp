@@ -57,6 +57,7 @@
 #include <uORB/topics/vehicle_status.h>
 #include <uORB/topics/vehicle_land_detected.h>
 #include <uORB/topics/landing_gear.h>
+#include <uORB/topics/partial_controls.h>
 #include <vtol_att_control/vtol_type.h>
 
 #include <AttitudeControl.hpp>
@@ -108,6 +109,7 @@ private:
 	void		sensor_correction_poll();
 	bool		vehicle_attitude_poll();
 	void		vehicle_attitude_setpoint_poll();
+	void		partial_controls_poll();
 	void		vehicle_control_mode_poll();
 	bool		vehicle_manual_poll();
 	void		vehicle_motor_limits_poll();
@@ -152,6 +154,7 @@ private:
 
 	int		_v_att_sub{-1};			/**< vehicle attitude subscription */
 	int		_v_att_sp_sub{-1};		/**< vehicle attitude setpoint subscription */
+	int		_partial_controls_sub{-1};	/**< virtual controls (pos & vel) subscription */
 	int		_v_rates_sp_sub{-1};		/**< vehicle rates setpoint subscription */
 	int		_v_control_mode_sub{-1};	/**< vehicle control mode subscription */
 	int		_params_sub{-1};		/**< parameter updates subscription */
@@ -181,6 +184,7 @@ private:
 
 	struct vehicle_attitude_s		_v_att {};		/**< vehicle attitude */
 	struct vehicle_attitude_setpoint_s	_v_att_sp {};		/**< vehicle attitude setpoint */
+	struct partial_controls_s		_partial_controls {};	/**< virtual controls (pos & vel) */
 	struct vehicle_rates_setpoint_s		_v_rates_sp {};		/**< vehicle rates setpoint */
 	struct manual_control_setpoint_s	_manual_control_sp {};	/**< manual control setpoint */
 	struct vehicle_control_mode_s		_v_control_mode {};	/**< vehicle control mode */
@@ -216,6 +220,9 @@ private:
 
 	matrix::Vector3f _p_control_att_0;		/**< partial control (attitude) for rotor 0 */
 	matrix::Vector3f _p_control_att_1;		/**< partial control (attitude) for rotor 1 */
+
+	matrix::Vector3f _virtual_control_0;		/**< Virtual control in Fx/Fy/Fz for rotor 0 */
+	matrix::Vector3f _virtual_control_1;		/**< Virtual control in Fx/Fy/Fz for rotor 0 */
 
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MC_ROLL_P>) _param_mc_roll_p,

@@ -119,6 +119,8 @@ MulticopterAttitudeControl::MulticopterAttitudeControl() :
 	_att_control.zero();
 	_p_control_att_0.zero();
 	_p_control_att_1.zero();
+	_virtual_control_0.zero();
+	_virtual_control_1.zero();
 
 	/* initialize thermal corrections as we might not immediately get a topic update (only non-zero values) */
 	for (unsigned i = 0; i < 3; i++) {
@@ -224,6 +226,18 @@ MulticopterAttitudeControl::vehicle_attitude_setpoint_poll()
 
 	if (updated) {
 		orb_copy(ORB_ID(vehicle_attitude_setpoint), _v_att_sp_sub, &_v_att_sp);
+	}
+}
+
+void
+MulticopterAttitudeControl::partial_controls_poll()
+{
+	/* check if there is a new setpoint */
+	bool updated;
+	orb_check(_partial_controls_sub, &updated);
+
+	if (updated) {
+		orb_copy(ORB_ID(partial_controls), _partial_controls_sub, &_partial_controls);
 	}
 }
 
@@ -585,10 +599,10 @@ MulticopterAttitudeControl::pid_attenuations(float tpa_breakpoint, float tpa_rat
 void
 MulticopterAttitudeControl::control_attitude_rates(float dt)
 {
-	/* reset integral if disarmed */
-	if (!_v_control_mode.flag_armed || !_vehicle_status.is_rotary_wing) {
-		_rates_int.zero();
-	}
+	// /* reset integral if disarmed */
+	// if (!_v_control_mode.flag_armed || !_vehicle_status.is_rotary_wing) {
+	// 	_rates_int.zero();
+	// }
 
 	// get the raw gyro data and correct for thermal errors
 	Vector3f rates;
@@ -622,75 +636,32 @@ MulticopterAttitudeControl::control_attitude_rates(float dt)
 	rates(1) -= _sensor_bias.gyro_y_bias;
 	rates(2) -= _sensor_bias.gyro_z_bias;
 
-	Vector3f rates_p_scaled = _rate_p.emult(pid_attenuations(_param_mc_tpa_break_p.get(), _param_mc_tpa_rate_p.get()));
-	Vector3f rates_i_scaled = _rate_i.emult(pid_attenuations(_param_mc_tpa_break_i.get(), _param_mc_tpa_rate_i.get()));
-	Vector3f rates_d_scaled = _rate_d.emult(pid_attenuations(_param_mc_tpa_break_d.get(), _param_mc_tpa_rate_d.get()));
-
 	/* angular rates error */
-	Vector3f rates_err = _rates_sp - rates;
+	// Should I accept rate sp for offboard control?
+	Vector3f rates_err = -rates;
 
-	/* apply low-pass filtering to the rates for D-term */
-	Vector3f rates_filtered(_lp_filters_d.apply(rates));
+	// /* apply low-pass filtering to the rates for D-term */
+	// Vector3f rates_filtered(_lp_filters_d.apply(rates));
 
-	_att_control = rates_p_scaled.emult(rates_err) +
-		       _rates_int -
-		       rates_d_scaled.emult(rates_filtered - _rates_prev_filtered) / dt +
-		       _rate_ff.emult(_rates_sp);
+	// Calculate final LQR output (rate) and combine with all previous partial controls (pos/vel/att)
+	// Rotor 1
+	_virtual_control_0(0) = _param_mpc_lqr_k17.get() * rates_err(0) + _param_mpc_lqr_k18.get() * rates_err(1) +
+				_param_mpc_lqr_k19.get() * rates_err(2) + _partial_controls(0);
+	_virtual_control_0(1) = _param_mpc_lqr_k27.get() * rates_err(0) + _param_mpc_lqr_k28.get() * rates_err(1) +
+				_param_mpc_lqr_k29.get() * rates_err(2) + _partial_controls(1);
+	_virtual_control_0(2) = _param_mpc_lqr_k37.get() * rates_err(0) + _param_mpc_lqr_k38.get() * rates_err(1) +
+				_param_mpc_lqr_k39.get() * rates_err(2) + _partial_controls(2);
+	// Rotor 2
+	_virtual_control_1(0) = _param_mpc_lqr_k47.get() * rates_err(0) + _param_mpc_lqr_k48.get() * rates_err(1) +
+				_param_mpc_lqr_k49.get() * rates_err(2) + _partial_controls(3);
+	_virtual_control_1(1) = _param_mpc_lqr_k57.get() * rates_err(0) + _param_mpc_lqr_k58.get() * rates_err(1) +
+				_param_mpc_lqr_k59.get() * rates_err(2) + _partial_controls(4);
+	_virtual_control_1(2) = _param_mpc_lqr_k67.get() * rates_err(0) + _param_mpc_lqr_k68.get() * rates_err(1) +
+				_param_mpc_lqr_k69.get() * rates_err(2) + _partial_controls(5);
 
-	_rates_prev = rates;
-	_rates_prev_filtered = rates_filtered;
+	// Convert virtual (Fx/y/z) control input to actual (alpha/beta/T) input
 
-	/* update integral only if we are not landed */
-	if (!_vehicle_land_detected.maybe_landed && !_vehicle_land_detected.landed) {
-		for (int i = AXIS_INDEX_ROLL; i < AXIS_COUNT; i++) {
-			// Check for positive control saturation
-			bool positive_saturation =
-				((i == AXIS_INDEX_ROLL) && _saturation_status.flags.roll_pos) ||
-				((i == AXIS_INDEX_PITCH) && _saturation_status.flags.pitch_pos) ||
-				((i == AXIS_INDEX_YAW) && _saturation_status.flags.yaw_pos);
 
-			// Check for negative control saturation
-			bool negative_saturation =
-				((i == AXIS_INDEX_ROLL) && _saturation_status.flags.roll_neg) ||
-				((i == AXIS_INDEX_PITCH) && _saturation_status.flags.pitch_neg) ||
-				((i == AXIS_INDEX_YAW) && _saturation_status.flags.yaw_neg);
-
-			// prevent further positive control saturation
-			if (positive_saturation) {
-				rates_err(i) = math::min(rates_err(i), 0.0f);
-
-			}
-
-			// prevent further negative control saturation
-			if (negative_saturation) {
-				rates_err(i) = math::max(rates_err(i), 0.0f);
-
-			}
-
-			// I term factor: reduce the I gain with increasing rate error.
-			// This counteracts a non-linear effect where the integral builds up quickly upon a large setpoint
-			// change (noticeable in a bounce-back effect after a flip).
-			// The formula leads to a gradual decrease w/o steps, while only affecting the cases where it should:
-			// with the parameter set to 400 degrees, up to 100 deg rate error, i_factor is almost 1 (having no effect),
-			// and up to 200 deg error leads to <25% reduction of I.
-			float i_factor = rates_err(i) / math::radians(400.f);
-			i_factor = math::max(0.0f, 1.f - i_factor * i_factor);
-
-			// Perform the integration using a first order method and do not propagate the result if out of range or invalid
-			float rate_i = _rates_int(i) + i_factor * rates_i_scaled(i) * rates_err(i) * dt;
-
-			if (PX4_ISFINITE(rate_i) && rate_i > -_rate_int_lim(i) && rate_i < _rate_int_lim(i)) {
-				_rates_int(i) = rate_i;
-
-			}
-		}
-	}
-
-	/* explicitly limit the integrator state */
-	for (int i = AXIS_INDEX_ROLL; i < AXIS_COUNT; i++) {
-		_rates_int(i) = math::constrain(_rates_int(i), -_rate_int_lim(i), _rate_int_lim(i));
-
-	}
 }
 
 void
@@ -752,6 +723,7 @@ MulticopterAttitudeControl::run()
 	 */
 	_v_att_sub = orb_subscribe(ORB_ID(vehicle_attitude));
 	_v_att_sp_sub = orb_subscribe(ORB_ID(vehicle_attitude_setpoint));
+	_partial_controls_sub = orb_subscribe(ORB_ID(partial_controls));
 	_v_rates_sp_sub = orb_subscribe(ORB_ID(vehicle_rates_setpoint));
 	_v_control_mode_sub = orb_subscribe(ORB_ID(vehicle_control_mode));
 	_params_sub = orb_subscribe(ORB_ID(parameter_update));
@@ -903,6 +875,8 @@ MulticopterAttitudeControl::run()
 					_rates_int.zero();
 					_thrust_sp = 0.0f;
 					_att_control.zero();
+					_virtual_control_0.zero();
+					_virtual_control_1.zero();
 					publish_actuator_controls();
 				}
 			}
@@ -939,6 +913,7 @@ MulticopterAttitudeControl::run()
 
 	orb_unsubscribe(_v_att_sub);
 	orb_unsubscribe(_v_att_sp_sub);
+	orb_unsubscribe(_partial_controls_sub);
 	orb_unsubscribe(_v_rates_sp_sub);
 	orb_unsubscribe(_v_control_mode_sub);
 	orb_unsubscribe(_params_sub);
