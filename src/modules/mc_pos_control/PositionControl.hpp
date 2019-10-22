@@ -42,6 +42,7 @@
 #include <uORB/topics/vehicle_local_position.h>
 #include <uORB/topics/vehicle_local_position_setpoint.h>
 #include <uORB/topics/vehicle_constraints.h>
+#include <uORB/topics/partial_controls.h>
 #include <px4_module_params.h>
 #pragma once
 
@@ -119,10 +120,9 @@ public:
 	/**
 	 * Apply LQR controller that updates the member
 	 * partial control
-	 * @see _partial_u_0
-	 * @see _partial_u_1
+	 * @return partial control output
 	 */
-	void generatePartialControl();
+	partial_controls_s generatePartialControl();
 
 	/**
 	 * 	Set the integral term in xy to 0.

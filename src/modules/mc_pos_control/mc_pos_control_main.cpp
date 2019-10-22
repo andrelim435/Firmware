@@ -112,7 +112,6 @@ private:
 	orb_advert_t	_local_pos_sp_pub{nullptr};		/**< vehicle local position setpoint publication */
 	orb_advert_t _pub_vehicle_command{nullptr};           /**< vehicle command publication */
 	orb_id_t _attitude_setpoint_id{nullptr};
-	orb_id_t _partial_controls_id{nullptr};
 	orb_advert_t	_landing_gear_pub{nullptr};
 
 	int		_vehicle_status_sub{-1};		/**< vehicle status subscription */
@@ -686,7 +685,7 @@ MulticopterPositionControl::run()
 
 			// If 6dof tiltrotor, generate partial control
 			if (_vehicle_status.system_type == 23) {
-				_control.generatePartialControl();
+				_partial_controls = _control.generatePartialControl();
 			} else {
 				// Generate desired thrust and yaw.
 				_control.generateThrustYawSetpoint(_dt);
@@ -1048,14 +1047,13 @@ MulticopterPositionControl::publish_attitude()
 void
 MulticopterPositionControl::publish_partial_control()
 {
-	// TODO
 	_partial_controls.timestamp = hrt_absolute_time();
 
 	if (_partial_control_pub != nullptr) {
-		orb_publish(_partial_controls_id, _partial_control_pub, &_partial_controls);
+		orb_publish(ORB_ID(partial_controls), _partial_control_pub, &_partial_controls);
 
-	} else if (_partial_controls_id) {
-		_partial_control_pub = orb_advertise(_partial_controls_id, &_partial_controls);
+	} else {
+		_partial_control_pub = orb_advertise(ORB_ID(partial_controls), &_partial_controls);
 	}
 }
 
