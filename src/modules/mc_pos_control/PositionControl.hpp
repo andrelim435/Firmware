@@ -121,9 +121,8 @@ public:
 	 * partial control
 	 * @see _partial_u_0
 	 * @see _partial_u_1
-	 * @param dt the delta-time
 	 */
-	void generatePartialControl(const float dt);
+	void generatePartialControl();
 
 	/**
 	 * 	Set the integral term in xy to 0.
