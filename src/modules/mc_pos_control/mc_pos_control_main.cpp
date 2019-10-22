@@ -56,6 +56,7 @@
 #include <uORB/topics/vehicle_status.h>
 #include <uORB/topics/vehicle_trajectory_waypoint.h>
 #include <uORB/topics/landing_gear.h>
+#include <uORB/topics/partial_controls.h>
 
 #include <float.h>
 #include <mathlib/mathlib.h>
@@ -106,6 +107,7 @@ private:
 	Takeoff _takeoff; /**< state machine and ramp to bring the vehicle off the ground without jumps */
 
 	orb_advert_t	_att_sp_pub{nullptr};			/**< attitude setpoint publication */
+	orb_advert_t	_partial_control_pub{nullptr};		/**< partial control publication */
 	orb_advert_t	_traj_sp_pub{nullptr};		/**< trajectory setpoints publication */
 	orb_advert_t	_local_pos_sp_pub{nullptr};		/**< vehicle local position setpoint publication */
 	orb_advert_t _pub_vehicle_command{nullptr};           /**< vehicle command publication */
@@ -134,6 +136,7 @@ private:
 	};
 
 	vehicle_attitude_setpoint_s	_att_sp{};			/**< vehicle attitude setpoint */
+	partial_controls_s	_partial_controls{};		/**< partial control ouput */
 	vehicle_control_mode_s	_control_mode{};		/**< vehicle control mode */
 	vehicle_local_position_s _local_pos{};			/**< vehicle local position */
 	home_position_s	_home_pos{};			/**< home position */
@@ -682,7 +685,7 @@ MulticopterPositionControl::run()
 
 			// If 6dof tiltrotor, generate partial control
 			if (_vehicle_status.system_type == 23) {
-				_control.generatePartialControl();
+				_partial_controls = _control.generatePartialControl();
 			} else {
 				// Generate desired thrust and yaw.
 				_control.generateThrustYawSetpoint(_dt);
@@ -1044,14 +1047,13 @@ MulticopterPositionControl::publish_attitude()
 void
 MulticopterPositionControl::publish_partial_control()
 {
-	// TODO
-	_att_sp.timestamp = hrt_absolute_time();
+	_partial_controls.timestamp = hrt_absolute_time();
 
-	if (_att_sp_pub != nullptr) {
-		orb_publish(_attitude_setpoint_id, _att_sp_pub, &_att_sp);
+	if (_partial_control_pub != nullptr) {
+		orb_publish(ORB_ID(partial_controls), _partial_control_pub, &_partial_controls);
 
-	} else if (_attitude_setpoint_id) {
-		_att_sp_pub = orb_advertise(_attitude_setpoint_id, &_att_sp);
+	} else {
+		_partial_control_pub = orb_advertise(ORB_ID(partial_controls), &_partial_controls);
 	}
 }
 
