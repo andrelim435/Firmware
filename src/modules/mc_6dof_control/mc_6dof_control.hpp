@@ -214,6 +214,9 @@ private:
 	float _man_yaw_sp{0.f};				/**< current yaw setpoint in manual mode */
 	bool _gear_state_initialized{false};		/**< true if the gear state has been initialized */
 
+	matrix::Vector3f _p_control_att_0;		/**< partial control (attitude) for rotor 0 */
+	matrix::Vector3f _p_control_att_1;		/**< partial control (attitude) for rotor 1 */
+
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MC_ROLL_P>) _param_mc_roll_p,
 		(ParamFloat<px4::params::MC_ROLLRATE_P>) _param_mc_rollrate_p,

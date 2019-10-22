@@ -117,6 +117,8 @@ MulticopterAttitudeControl::MulticopterAttitudeControl() :
 	_rates_int.zero();
 	_thrust_sp = 0.0f;
 	_att_control.zero();
+	_p_control_att_0.zero();
+	_p_control_att_1.zero();
 
 	/* initialize thermal corrections as we might not immediately get a topic update (only non-zero values) */
 	for (unsigned i = 0; i < 3; i++) {
@@ -515,7 +517,7 @@ MulticopterAttitudeControl::generate_attitude_setpoint(float dt, bool reset_yaw_
 /**
  * Attitude controller.
  * Input: 'vehicle_attitude_setpoint' topics (depending on mode)
- * Output: '_rates_sp' vector, '_thrust_sp'
+ * Output: '_p_control_att_0/1' vectors
  */
 void
 MulticopterAttitudeControl::control_attitude()
@@ -528,10 +530,30 @@ MulticopterAttitudeControl::control_attitude()
 		Vector3f().copyTo(_v_att_sp.thrust_body);
 	}
 
-	// physical thrust axis is the negative of body z axis
-	_thrust_sp = -_v_att_sp.thrust_body[2];
+	q = Quatf(_v_att.q);
+	// Should always be zero for now. Use this when adding full 6dof control to offboard mode
+	qd = Quatf(_v_att_sp.q_d);
 
-	_rates_sp = _attitude_control.update(Quatf(_v_att.q), Quatf(_v_att_sp.q_d), _v_att_sp.yaw_sp_move_rate);
+	// ensure input quaternions are exactly normalized because acosf(1.00001) == NaN
+	q.normalize();
+	qd.normalize();
+
+	// quaternion attitude control law, qe is rotation from q to qd
+	const Quatf qe = q.inversed() * qd;
+
+	// using sin(alpha/2) scaled rotation axis as attitude error (see quaternion definition by axis angle)
+	// also taking care of the antipodal unit quaternion ambiguity
+	const Vector3f eq = 2.f * math::signNoZero(qe(0)) * qe.imag();
+
+	// Calculate partial LQR output
+	// Rotor 1: phi,theta,psi
+	_p_control_att_0(0) = _param_mpc_lqr_k110.get() * eq(0) + _param_mpc_lqr_k111.get() * eq(1) + _param_mpc_lqr_k112.get() * eq(2);
+	_p_control_att_0(1) = _param_mpc_lqr_k210.get() * eq(0) + _param_mpc_lqr_k211.get() * eq(1) + _param_mpc_lqr_k212.get() * eq(2);
+	_p_control_att_0(2) = _param_mpc_lqr_k310.get() * eq(0) + _param_mpc_lqr_k311.get() * eq(1) + _param_mpc_lqr_k312.get() * eq(2);
+	// Rotor 2: phi,theta,psi
+	_p_control_att_1(0) = _param_mpc_lqr_k410.get() * eq(0) + _param_mpc_lqr_k411.get() * eq(1) + _param_mpc_lqr_k412.get() * eq(2);
+	_p_control_att_1(1) = _param_mpc_lqr_k510.get() * eq(0) + _param_mpc_lqr_k511.get() * eq(1) + _param_mpc_lqr_k512.get() * eq(2);
+	_p_control_att_1(2) = _param_mpc_lqr_k610.get() * eq(0) + _param_mpc_lqr_k611.get() * eq(1) + _param_mpc_lqr_k612.get() * eq(2);
 }
 
 /*
