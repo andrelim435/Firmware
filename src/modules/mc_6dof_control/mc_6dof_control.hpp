@@ -279,7 +279,51 @@ private:
 		_param_mpc_thr_hover,			/**< throttle at which vehicle is at hover equilibrium */
 		(ParamInt<px4::params::MPC_THR_CURVE>) _param_mpc_thr_curve,				/**< throttle curve behavior */
 
-		(ParamInt<px4::params::MC_AIRMODE>) _param_mc_airmode
+		(ParamInt<px4::params::MC_AIRMODE>) _param_mc_airmode,
+
+		/* LQR gains */
+		(ParamFloat<px4::params::MPC_LQR_K17>) _param_mpc_lqr_k17,
+		(ParamFloat<px4::params::MPC_LQR_K18>) _param_mpc_lqr_k18,
+		(ParamFloat<px4::params::MPC_LQR_K19>) _param_mpc_lqr_k19,
+		(ParamFloat<px4::params::MPC_LQR_K110>) _param_mpc_lqr_k110,
+		(ParamFloat<px4::params::MPC_LQR_K111>) _param_mpc_lqr_k111,
+		(ParamFloat<px4::params::MPC_LQR_K112>) _param_mpc_lqr_k112,
+
+		(ParamFloat<px4::params::MPC_LQR_K27>) _param_mpc_lqr_k27,
+		(ParamFloat<px4::params::MPC_LQR_K28>) _param_mpc_lqr_k28,
+		(ParamFloat<px4::params::MPC_LQR_K29>) _param_mpc_lqr_k29,
+		(ParamFloat<px4::params::MPC_LQR_K210>) _param_mpc_lqr_k210,
+		(ParamFloat<px4::params::MPC_LQR_K211>) _param_mpc_lqr_k211,
+		(ParamFloat<px4::params::MPC_LQR_K212>) _param_mpc_lqr_k212,
+
+		(ParamFloat<px4::params::MPC_LQR_K37>) _param_mpc_lqr_k37,
+		(ParamFloat<px4::params::MPC_LQR_K38>) _param_mpc_lqr_k38,
+		(ParamFloat<px4::params::MPC_LQR_K39>) _param_mpc_lqr_k39,
+		(ParamFloat<px4::params::MPC_LQR_K310>) _param_mpc_lqr_k310,
+		(ParamFloat<px4::params::MPC_LQR_K311>) _param_mpc_lqr_k311,
+		(ParamFloat<px4::params::MPC_LQR_K312>) _param_mpc_lqr_k312,
+
+		(ParamFloat<px4::params::MPC_LQR_K47>) _param_mpc_lqr_k47,
+		(ParamFloat<px4::params::MPC_LQR_K48>) _param_mpc_lqr_k48,
+		(ParamFloat<px4::params::MPC_LQR_K49>) _param_mpc_lqr_k49,
+		(ParamFloat<px4::params::MPC_LQR_K410>) _param_mpc_lqr_k410,
+		(ParamFloat<px4::params::MPC_LQR_K411>) _param_mpc_lqr_k411,
+		(ParamFloat<px4::params::MPC_LQR_K412>) _param_mpc_lqr_k412,
+
+		(ParamFloat<px4::params::MPC_LQR_K57>) _param_mpc_lqr_k57,
+		(ParamFloat<px4::params::MPC_LQR_K58>) _param_mpc_lqr_k58,
+		(ParamFloat<px4::params::MPC_LQR_K59>) _param_mpc_lqr_k59,
+		(ParamFloat<px4::params::MPC_LQR_K510>) _param_mpc_lqr_k510,
+		(ParamFloat<px4::params::MPC_LQR_K511>) _param_mpc_lqr_k511,
+		(ParamFloat<px4::params::MPC_LQR_K512>) _param_mpc_lqr_k512,
+
+		(ParamFloat<px4::params::MPC_LQR_K67>) _param_mpc_lqr_k67,
+		(ParamFloat<px4::params::MPC_LQR_K68>) _param_mpc_lqr_k68,
+		(ParamFloat<px4::params::MPC_LQR_K69>) _param_mpc_lqr_k69,
+		(ParamFloat<px4::params::MPC_LQR_K610>) _param_mpc_lqr_k610,
+		(ParamFloat<px4::params::MPC_LQR_K611>) _param_mpc_lqr_k611,
+		(ParamFloat<px4::params::MPC_LQR_K612>) _param_mpc_lqr_k612
+
 	)
 
 	bool _is_tailsitter{false};

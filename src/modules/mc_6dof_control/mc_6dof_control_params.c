@@ -567,3 +567,332 @@ PARAM_DEFINE_FLOAT(MC6_DTERM_CUTOFF, 0.f);
  */
 PARAM_DEFINE_INT32(MC6_AIRMODE, 0);
 
+/**
+ * LQR Gain matrix K17
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K17, 0.0f);
+/**
+ * LQR Gain matrix K18
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K18, 0.0f);
+/**
+ * LQR Gain matrix K19
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K19, 0.0f);
+/**
+ * LQR Gain matrix K110
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K110, 0.0f);
+/**
+ * LQR Gain matrix K111
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K111, 0.0f);
+/**
+ * LQR Gain matrix K112
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K112, 0.0f);
+
+/**
+ * LQR Gain matrix K27
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K27, 0.0f);
+/**
+ * LQR Gain matrix K28
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K28, 0.0f);
+/**
+ * LQR Gain matrix K29
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K29, 0.0f);
+/**
+ * LQR Gain matrix K210
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K210, 0.0f);
+/**
+ * LQR Gain matrix K211
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K211, 0.0f);
+/**
+ * LQR Gain matrix K212
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K212, 0.0f);
+
+/**
+ * LQR Gain matrix K37
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K37, 0.0f);
+/**
+ * LQR Gain matrix K38
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K38, 0.0f);
+/**
+ * LQR Gain matrix K39
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K39, 0.0f);
+/**
+ * LQR Gain matrix K310
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K310, 0.0f);
+/**
+ * LQR Gain matrix K311
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K311, 0.0f);
+/**
+ * LQR Gain matrix K312
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K312, 0.0f);
+
+/**
+ * LQR Gain matrix K47
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K47, 0.0f);
+/**
+ * LQR Gain matrix K48
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K48, 0.0f);
+/**
+ * LQR Gain matrix K49
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K49, 0.0f);
+/**
+ * LQR Gain matrix K410
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K410, 0.0f);
+/**
+ * LQR Gain matrix K411
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K411, 0.0f);
+/**
+ * LQR Gain matrix K412
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K412, 0.0f);
+
+/**
+ * LQR Gain matrix K57
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K57, 0.0f);
+/**
+ * LQR Gain matrix K58
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K58, 0.0f);
+/**
+ * LQR Gain matrix K59
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K59, 0.0f);
+/**
+ * LQR Gain matrix K510
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K510, 0.0f);
+/**
+ * LQR Gain matrix K511
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K511, 0.0f);
+/**
+ * LQR Gain matrix K512
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K512, 0.0f);
+
+/**
+ * LQR Gain matrix K67
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K67, 0.0f);
+/**
+ * LQR Gain matrix K68
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K68, 0.0f);
+/**
+ * LQR Gain matrix K69
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K69, 0.0f);
+/**
+ * LQR Gain matrix K610
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K610, 0.0f);
+/**
+ * LQR Gain matrix K611
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K611, 0.0f);
+/**
+ * LQR Gain matrix K612
+ *
+ * @min -1000
+ * @max 1000
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_LQR_K612, 0.0f);

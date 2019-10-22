@@ -530,9 +530,9 @@ MulticopterAttitudeControl::control_attitude()
 		Vector3f().copyTo(_v_att_sp.thrust_body);
 	}
 
-	q = Quatf(_v_att.q);
+	Quatf q = Quatf(_v_att.q);
 	// Should always be zero for now. Use this when adding full 6dof control to offboard mode
-	qd = Quatf(_v_att_sp.q_d);
+	Quatf qd = Quatf(_v_att_sp.q_d);
 
 	// ensure input quaternions are exactly normalized because acosf(1.00001) == NaN
 	q.normalize();
