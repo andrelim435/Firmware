@@ -217,6 +217,11 @@ private:
 	void publish_attitude();
 
 	/**
+	 * Publish partial control for 6dof.
+	 */
+	void publish_partial_control();
+
+	/**
 	 * Publish local position setpoint.
 	 * This is only required for logging.
 	 */
@@ -675,8 +680,13 @@ MulticopterPositionControl::run()
 				warn_rate_limited("Position-Control Setpoint-Update failed");
 			}
 
-			// Generate desired thrust and yaw.
-			_control.generateThrustYawSetpoint(_dt);
+			// If 6dof tiltrotor, generate partial control
+			if (_vehicle_status.system_type == 23) {
+				_control.generatePartialControl();
+			} else {
+				// Generate desired thrust and yaw.
+				_control.generateThrustYawSetpoint(_dt);
+			}
 
 			// Fill local position, velocity and thrust setpoint.
 			// This message contains setpoints where each type of setpoint is either the input to the PositionController
@@ -715,18 +725,23 @@ MulticopterPositionControl::run()
 				limit_thrust_during_landing(local_pos_sp);
 			}
 
-			// Fill attitude setpoint. Attitude is computed from yaw and thrust setpoint.
-			_att_sp = ControlMath::thrustToAttitude(matrix::Vector3f(local_pos_sp.thrust), local_pos_sp.yaw);
-			_att_sp.yaw_sp_move_rate = _control.getYawspeedSetpoint();
-			_att_sp.fw_control_yaw = false;
-			_att_sp.apply_flaps = false;
+			// If 6dof tiltrotor, publish partial control
+			if (_vehicle_status.system_type == 23) {
+				publish_partial_control();
+			} else {
+				// Fill attitude setpoint. Attitude is computed from yaw and thrust setpoint.
+				_att_sp = ControlMath::thrustToAttitude(matrix::Vector3f(local_pos_sp.thrust), local_pos_sp.yaw);
+				_att_sp.yaw_sp_move_rate = _control.getYawspeedSetpoint();
+				_att_sp.fw_control_yaw = false;
+				_att_sp.apply_flaps = false;
 
-			// publish attitude setpoint
-			// Note: this requires review. The reason for not sending
-			// an attitude setpoint is because for non-flighttask modes
-			// the attitude septoint should come from another source, otherwise
-			// they might conflict with each other such as in offboard attitude control.
-			publish_attitude();
+				// publish attitude setpoint
+				// Note: this requires review. The reason for not sending
+				// an attitude setpoint is because for non-flighttask modes
+				// the attitude septoint should come from another source, otherwise
+				// they might conflict with each other such as in offboard attitude control.
+				publish_attitude();
+			}
 
 			// if there's any change in landing gear setpoint publish it
 			if (gear.landing_gear != _old_landing_gear_position
@@ -1016,6 +1031,20 @@ MulticopterPositionControl::reset_setpoint_to_nan(vehicle_local_position_setpoin
 void
 MulticopterPositionControl::publish_attitude()
 {
+	_att_sp.timestamp = hrt_absolute_time();
+
+	if (_att_sp_pub != nullptr) {
+		orb_publish(_attitude_setpoint_id, _att_sp_pub, &_att_sp);
+
+	} else if (_attitude_setpoint_id) {
+		_att_sp_pub = orb_advertise(_attitude_setpoint_id, &_att_sp);
+	}
+}
+
+void
+MulticopterPositionControl::publish_partial_control()
+{
+	// TODO
 	_att_sp.timestamp = hrt_absolute_time();
 
 	if (_att_sp_pub != nullptr) {
