@@ -42,6 +42,7 @@
 #include <uORB/topics/vehicle_local_position.h>
 #include <uORB/topics/vehicle_local_position_setpoint.h>
 #include <uORB/topics/vehicle_constraints.h>
+#include <uORB/topics/partial_controls.h>
 #include <px4_module_params.h>
 #pragma once
 
@@ -115,6 +116,13 @@ public:
 	 * @param dt the delta-time
 	 */
 	void generateThrustYawSetpoint(const float dt);
+
+	/**
+	 * Apply LQR controller that updates the member
+	 * partial control
+	 * @return partial control output
+	 */
+	partial_controls_s generatePartialControl();
 
 	/**
 	 * 	Set the integral term in xy to 0.
@@ -215,6 +223,8 @@ private:
 	matrix::Vector3f _vel_sp{}; /**< desired velocity */
 	matrix::Vector3f _acc_sp{}; /**< desired acceleration: not supported yet */
 	matrix::Vector3f _thr_sp{}; /**< desired thrust */
+	matrix::Vector3f _partial_u_0{}; /**< partial control for rotor 1 */
+	matrix::Vector3f _partial_u_1{}; /**< partial control for rotor 2 */
 	float _yaw_sp{}; /**< desired yaw */
 	float _yawspeed_sp{}; /** desired yaw-speed */
 	matrix::Vector3f _thr_int{}; /**< thrust integral term */
@@ -242,6 +252,42 @@ private:
 		(ParamFloat<px4::params::MPC_XY_P>) _param_mpc_xy_p,
 		(ParamFloat<px4::params::MPC_XY_VEL_P>) _param_mpc_xy_vel_p,
 		(ParamFloat<px4::params::MPC_XY_VEL_I>) _param_mpc_xy_vel_i,
-		(ParamFloat<px4::params::MPC_XY_VEL_D>) _param_mpc_xy_vel_d
+		(ParamFloat<px4::params::MPC_XY_VEL_D>) _param_mpc_xy_vel_d,
+		(ParamFloat<px4::params::MPC_LQR_K11>) _param_mpc_lqr_k11,
+		(ParamFloat<px4::params::MPC_LQR_K12>) _param_mpc_lqr_k12,
+		(ParamFloat<px4::params::MPC_LQR_K13>) _param_mpc_lqr_k13,
+		(ParamFloat<px4::params::MPC_LQR_K14>) _param_mpc_lqr_k14,
+		(ParamFloat<px4::params::MPC_LQR_K15>) _param_mpc_lqr_k15,
+		(ParamFloat<px4::params::MPC_LQR_K16>) _param_mpc_lqr_k16,
+		(ParamFloat<px4::params::MPC_LQR_K21>) _param_mpc_lqr_k21,
+		(ParamFloat<px4::params::MPC_LQR_K22>) _param_mpc_lqr_k22,
+		(ParamFloat<px4::params::MPC_LQR_K23>) _param_mpc_lqr_k23,
+		(ParamFloat<px4::params::MPC_LQR_K24>) _param_mpc_lqr_k24,
+		(ParamFloat<px4::params::MPC_LQR_K25>) _param_mpc_lqr_k25,
+		(ParamFloat<px4::params::MPC_LQR_K26>) _param_mpc_lqr_k26,
+		(ParamFloat<px4::params::MPC_LQR_K31>) _param_mpc_lqr_k31,
+		(ParamFloat<px4::params::MPC_LQR_K32>) _param_mpc_lqr_k32,
+		(ParamFloat<px4::params::MPC_LQR_K33>) _param_mpc_lqr_k33,
+		(ParamFloat<px4::params::MPC_LQR_K34>) _param_mpc_lqr_k34,
+		(ParamFloat<px4::params::MPC_LQR_K35>) _param_mpc_lqr_k35,
+		(ParamFloat<px4::params::MPC_LQR_K36>) _param_mpc_lqr_k36,
+		(ParamFloat<px4::params::MPC_LQR_K41>) _param_mpc_lqr_k41,
+		(ParamFloat<px4::params::MPC_LQR_K42>) _param_mpc_lqr_k42,
+		(ParamFloat<px4::params::MPC_LQR_K43>) _param_mpc_lqr_k43,
+		(ParamFloat<px4::params::MPC_LQR_K44>) _param_mpc_lqr_k44,
+		(ParamFloat<px4::params::MPC_LQR_K45>) _param_mpc_lqr_k45,
+		(ParamFloat<px4::params::MPC_LQR_K46>) _param_mpc_lqr_k46,
+		(ParamFloat<px4::params::MPC_LQR_K51>) _param_mpc_lqr_k51,
+		(ParamFloat<px4::params::MPC_LQR_K52>) _param_mpc_lqr_k52,
+		(ParamFloat<px4::params::MPC_LQR_K53>) _param_mpc_lqr_k53,
+		(ParamFloat<px4::params::MPC_LQR_K54>) _param_mpc_lqr_k54,
+		(ParamFloat<px4::params::MPC_LQR_K55>) _param_mpc_lqr_k55,
+		(ParamFloat<px4::params::MPC_LQR_K56>) _param_mpc_lqr_k56,
+		(ParamFloat<px4::params::MPC_LQR_K61>) _param_mpc_lqr_k61,
+		(ParamFloat<px4::params::MPC_LQR_K62>) _param_mpc_lqr_k62,
+		(ParamFloat<px4::params::MPC_LQR_K63>) _param_mpc_lqr_k63,
+		(ParamFloat<px4::params::MPC_LQR_K64>) _param_mpc_lqr_k64,
+		(ParamFloat<px4::params::MPC_LQR_K65>) _param_mpc_lqr_k65,
+		(ParamFloat<px4::params::MPC_LQR_K66>) _param_mpc_lqr_k66
 	)
 };

@@ -109,6 +109,34 @@ void PositionControl::generateThrustYawSetpoint(const float dt)
 	}
 }
 
+partial_controls_s PositionControl::generatePartialControl()
+{
+	// Given a LQR that takes pos/vel/rate/att
+	// Calculate the partial control output for pos/vel
+	partial_controls_s _p_c = {};
+
+	const Vector3f pos_err = _pos_sp - _pos;
+	const Vector3f vel_err = _vel_sp - _vel;
+
+	// Calculate partial LQR output
+	// Rotor 1: x,y,z components of force
+	_p_c.control[0] = _param_mpc_lqr_k11.get() * pos_err(0) + _param_mpc_lqr_k12.get() * pos_err(1) + _param_mpc_lqr_k13.get() * pos_err(2)
+			+ _param_mpc_lqr_k14.get() * vel_err(0) + _param_mpc_lqr_k15.get() * vel_err(1) + _param_mpc_lqr_k16.get() * vel_err(2);
+	_p_c.control[1] = _param_mpc_lqr_k21.get() * pos_err(0) + _param_mpc_lqr_k22.get() * pos_err(1) + _param_mpc_lqr_k23.get() * pos_err(2)
+			+ _param_mpc_lqr_k24.get() * vel_err(0) + _param_mpc_lqr_k25.get() * vel_err(1) + _param_mpc_lqr_k26.get() * vel_err(2);
+	_p_c.control[2] = _param_mpc_lqr_k31.get() * pos_err(0) + _param_mpc_lqr_k32.get() * pos_err(1) + _param_mpc_lqr_k33.get() * pos_err(2)
+			+ _param_mpc_lqr_k34.get() * vel_err(0) + _param_mpc_lqr_k35.get() * vel_err(1) + _param_mpc_lqr_k36.get() * vel_err(2);
+	// Rotor 2: x,y,z components of force
+	_p_c.control[3] = _param_mpc_lqr_k41.get() * pos_err(0) + _param_mpc_lqr_k42.get() * pos_err(1) + _param_mpc_lqr_k43.get() * pos_err(2)
+			+ _param_mpc_lqr_k44.get() * vel_err(0) + _param_mpc_lqr_k45.get() * vel_err(1) + _param_mpc_lqr_k46.get() * vel_err(2);
+	_p_c.control[4] = _param_mpc_lqr_k51.get() * pos_err(0) + _param_mpc_lqr_k52.get() * pos_err(1) + _param_mpc_lqr_k53.get() * pos_err(2)
+			+ _param_mpc_lqr_k54.get() * vel_err(0) + _param_mpc_lqr_k55.get() * vel_err(1) + _param_mpc_lqr_k56.get() * vel_err(2);
+	_p_c.control[5] = _param_mpc_lqr_k61.get() * pos_err(0) + _param_mpc_lqr_k62.get() * pos_err(1) + _param_mpc_lqr_k63.get() * pos_err(2)
+			+ _param_mpc_lqr_k64.get() * vel_err(0) + _param_mpc_lqr_k65.get() * vel_err(1) + _param_mpc_lqr_k66.get() * vel_err(2);
+
+	return _p_c;
+}
+
 bool PositionControl::_interfaceMapping()
 {
 	// if nothing is valid, then apply failsafe landing
