@@ -70,18 +70,18 @@ extern "C" __EXPORT int mc_att_control_main(int argc, char *argv[]);
 #define MAX_GYRO_COUNT 3
 
 
-class MulticopterAttitudeControl : public ModuleBase<MulticopterAttitudeControl>, public ModuleParams
+class Multicopter6dofControl : public ModuleBase<Multicopter6dofControl>, public ModuleParams
 {
 public:
-	MulticopterAttitudeControl();
+	Multicopter6dofControl();
 
-	virtual ~MulticopterAttitudeControl() = default;
+	virtual ~Multicopter6dofControl() = default;
 
 	/** @see ModuleBase */
 	static int task_spawn(int argc, char *argv[]);
 
 	/** @see ModuleBase */
-	static MulticopterAttitudeControl *instantiate(int argc, char *argv[]);
+	static Multicopter6dofControl *instantiate(int argc, char *argv[]);
 
 	/** @see ModuleBase */
 	static int custom_command(int argc, char *argv[]);
@@ -153,7 +153,7 @@ private:
 	/**
 	 * Convert virtual input (Fx/Fy/Fz) to actual input(tilt angles, thrust)
 	 */
-	matrix::Vector3f convert_virtual_input();
+	void convert_virtual_input();
 
 	AttitudeControl _attitude_control; /**< class for attitude control calculations */
 
@@ -215,7 +215,9 @@ private:
 	matrix::Vector3f _rates_sp;			/**< angular rates setpoint */
 	matrix::Vector3f _rates_int;			/**< angular rates integral error */
 
-	matrix::Vector3f _att_control;			/**< attitude control vector */
+	matrix::Vector3f _att_control_0;		/**< attitude control vector */
+	matrix::Vector3f _att_control_1;		/**< attitude control vector */
+	float 		_att_control_thrust{0.0f};	/**< Calculate overall thrust magnitude */
 	float		_thrust_sp{0.0f};		/**< thrust setpoint */
 
 	matrix::Dcmf _board_rotation;			/**< rotation matrix for the orientation that the board is mounted */

@@ -35,7 +35,7 @@
 
 px4_add_module(
 	MODULE modules__mc_6dof_control
-	MAIN mc_att_control
+	MAIN mc_6dof_control
 	STACK_MAIN 1200
 	STACK_MAX 3500
 	COMPILE_FLAGS

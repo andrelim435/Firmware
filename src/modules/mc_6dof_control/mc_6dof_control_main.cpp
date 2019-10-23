@@ -63,7 +63,7 @@
 using namespace matrix;
 
 
-int MulticopterAttitudeControl::print_usage(const char *reason)
+int Multicopter6dofControl::print_usage(const char *reason)
 {
 	if (reason) {
 		PX4_WARN("%s\n", reason);
@@ -90,16 +90,16 @@ To reduce control latency, the module directly polls on the gyro topic published
 
 )DESCR_STR");
 
-	PRINT_MODULE_USAGE_NAME("mc_att_control", "controller");
+	PRINT_MODULE_USAGE_NAME("mc_6dof_control", "controller");
 	PRINT_MODULE_USAGE_COMMAND("start");
 	PRINT_MODULE_USAGE_DEFAULT_COMMANDS();
 
 	return 0;
 }
 
-MulticopterAttitudeControl::MulticopterAttitudeControl() :
+Multicopter6dofControl::Multicopter6dofControl() :
 	ModuleParams(nullptr),
-	_loop_perf(perf_alloc(PC_ELAPSED, "mc_att_control"))
+	_loop_perf(perf_alloc(PC_ELAPSED, "mc_6dof_control"))
 {
 	for (uint8_t i = 0; i < MAX_GYRO_COUNT; i++) {
 		_sensor_gyro_sub[i] = -1;
@@ -116,7 +116,9 @@ MulticopterAttitudeControl::MulticopterAttitudeControl() :
 	_rates_sp.zero();
 	_rates_int.zero();
 	_thrust_sp = 0.0f;
-	_att_control.zero();
+	_att_control_0.zero();
+	_att_control_1.zero();
+	_att_control_thrust = 0.0f;
 	_p_control_att_0.zero();
 	_p_control_att_1.zero();
 	_virtual_control_0.zero();
@@ -134,7 +136,7 @@ MulticopterAttitudeControl::MulticopterAttitudeControl() :
 }
 
 void
-MulticopterAttitudeControl::parameters_updated()
+Multicopter6dofControl::parameters_updated()
 {
 	// Store some of the parameters in a more convenient way & precompute often-used values
 	_attitude_control.setProportionalGain(Vector3f(_param_mc_roll_p.get(), _param_mc_pitch_p.get(), _param_mc_yaw_p.get()));
@@ -174,7 +176,7 @@ MulticopterAttitudeControl::parameters_updated()
 }
 
 void
-MulticopterAttitudeControl::parameter_update_poll()
+Multicopter6dofControl::parameter_update_poll()
 {
 	bool updated;
 
@@ -190,7 +192,7 @@ MulticopterAttitudeControl::parameter_update_poll()
 }
 
 void
-MulticopterAttitudeControl::vehicle_control_mode_poll()
+Multicopter6dofControl::vehicle_control_mode_poll()
 {
 	bool updated;
 
@@ -203,7 +205,7 @@ MulticopterAttitudeControl::vehicle_control_mode_poll()
 }
 
 bool
-MulticopterAttitudeControl::vehicle_manual_poll()
+Multicopter6dofControl::vehicle_manual_poll()
 {
 	bool updated;
 
@@ -218,7 +220,7 @@ MulticopterAttitudeControl::vehicle_manual_poll()
 }
 
 void
-MulticopterAttitudeControl::vehicle_attitude_setpoint_poll()
+Multicopter6dofControl::vehicle_attitude_setpoint_poll()
 {
 	/* check if there is a new setpoint */
 	bool updated;
@@ -230,7 +232,7 @@ MulticopterAttitudeControl::vehicle_attitude_setpoint_poll()
 }
 
 void
-MulticopterAttitudeControl::partial_controls_poll()
+Multicopter6dofControl::partial_controls_poll()
 {
 	/* check if there is a new setpoint */
 	bool updated;
@@ -242,7 +244,7 @@ MulticopterAttitudeControl::partial_controls_poll()
 }
 
 bool
-MulticopterAttitudeControl::vehicle_rates_setpoint_poll()
+Multicopter6dofControl::vehicle_rates_setpoint_poll()
 {
 	/* check if there is a new setpoint */
 	bool updated;
@@ -256,7 +258,7 @@ MulticopterAttitudeControl::vehicle_rates_setpoint_poll()
 }
 
 void
-MulticopterAttitudeControl::vehicle_status_poll()
+Multicopter6dofControl::vehicle_status_poll()
 {
 	/* check if there is new status information */
 	bool vehicle_status_updated;
@@ -285,7 +287,7 @@ MulticopterAttitudeControl::vehicle_status_poll()
 }
 
 void
-MulticopterAttitudeControl::vehicle_motor_limits_poll()
+Multicopter6dofControl::vehicle_motor_limits_poll()
 {
 	/* check if there is a new message */
 	bool updated;
@@ -300,7 +302,7 @@ MulticopterAttitudeControl::vehicle_motor_limits_poll()
 }
 
 void
-MulticopterAttitudeControl::battery_status_poll()
+Multicopter6dofControl::battery_status_poll()
 {
 	/* check if there is a new message */
 	bool updated;
@@ -312,7 +314,7 @@ MulticopterAttitudeControl::battery_status_poll()
 }
 
 bool
-MulticopterAttitudeControl::vehicle_attitude_poll()
+Multicopter6dofControl::vehicle_attitude_poll()
 {
 	/* check if there is a new message */
 	bool updated;
@@ -334,7 +336,7 @@ MulticopterAttitudeControl::vehicle_attitude_poll()
 }
 
 void
-MulticopterAttitudeControl::sensor_correction_poll()
+Multicopter6dofControl::sensor_correction_poll()
 {
 	/* check if there is a new message */
 	bool updated;
@@ -351,7 +353,7 @@ MulticopterAttitudeControl::sensor_correction_poll()
 }
 
 void
-MulticopterAttitudeControl::sensor_bias_poll()
+Multicopter6dofControl::sensor_bias_poll()
 {
 	/* check if there is a new message */
 	bool updated;
@@ -364,7 +366,7 @@ MulticopterAttitudeControl::sensor_bias_poll()
 }
 
 void
-MulticopterAttitudeControl::vehicle_land_detected_poll()
+Multicopter6dofControl::vehicle_land_detected_poll()
 {
 	/* check if there is a new message */
 	bool updated;
@@ -377,7 +379,7 @@ MulticopterAttitudeControl::vehicle_land_detected_poll()
 }
 
 void
-MulticopterAttitudeControl::landing_gear_state_poll()
+Multicopter6dofControl::landing_gear_state_poll()
 {
 	bool updated;
 	orb_check(_landing_gear_sub, &updated);
@@ -388,7 +390,7 @@ MulticopterAttitudeControl::landing_gear_state_poll()
 }
 
 float
-MulticopterAttitudeControl::throttle_curve(float throttle_stick_input)
+Multicopter6dofControl::throttle_curve(float throttle_stick_input)
 {
 	// throttle_stick_input is in range [0, 1]
 	switch (_param_mpc_thr_curve.get()) {
@@ -406,7 +408,7 @@ MulticopterAttitudeControl::throttle_curve(float throttle_stick_input)
 }
 
 float
-MulticopterAttitudeControl::get_landing_gear_state()
+Multicopter6dofControl::get_landing_gear_state()
 {
 	// Only switch the landing gear up if we are not landed and if
 	// the user switched from gear down to gear up.
@@ -428,7 +430,7 @@ MulticopterAttitudeControl::get_landing_gear_state()
 }
 
 void
-MulticopterAttitudeControl::generate_attitude_setpoint(float dt, bool reset_yaw_sp)
+Multicopter6dofControl::generate_attitude_setpoint(float dt, bool reset_yaw_sp)
 {
 	vehicle_attitude_setpoint_s attitude_setpoint{};
 	const float yaw = Eulerf(Quatf(_v_att.q)).psi();
@@ -534,7 +536,7 @@ MulticopterAttitudeControl::generate_attitude_setpoint(float dt, bool reset_yaw_
  * Output: '_p_control_att_0/1' vectors
  */
 void
-MulticopterAttitudeControl::control_attitude()
+Multicopter6dofControl::control_attitude()
 {
 	vehicle_attitude_setpoint_poll();
 
@@ -577,7 +579,7 @@ MulticopterAttitudeControl::control_attitude()
  * Output: 'pidAttenuationPerAxis' vector
  */
 Vector3f
-MulticopterAttitudeControl::pid_attenuations(float tpa_breakpoint, float tpa_rate)
+Multicopter6dofControl::pid_attenuations(float tpa_breakpoint, float tpa_rate)
 {
 	/* throttle pid attenuation factor */
 	float tpa = 1.0f - tpa_rate * (fabsf(_thrust_sp) - tpa_breakpoint) / (1.0f - tpa_breakpoint);
@@ -596,11 +598,9 @@ MulticopterAttitudeControl::pid_attenuations(float tpa_breakpoint, float tpa_rat
  * Input: 'virtual_control' vectors
  * Output: '_att_control' vector
  */
-Vector3f
-MulticopterAttitudeControl::convert_virtual_input()
+void
+Multicopter6dofControl::convert_virtual_input()
 {
-	Vector3f att_control;
-
 	// Generate quaternion from 2 vectors [0 0 -1] and [Fx Fy Fz]
 	Quatf q_rotor_0(Vector3f(0,0,-1), Vector3f(_virtual_control_0(0),_virtual_control_0(1),_virtual_control_0(2)));
 	Quatf q_rotor_1(Vector3f(0,0,-1), Vector3f(_virtual_control_1(0),_virtual_control_1(1),_virtual_control_1(2)));
@@ -609,23 +609,21 @@ MulticopterAttitudeControl::convert_virtual_input()
 	Eulerf e_rotor_0 = Eulerf(q_rotor_0);
 	Eulerf e_rotor_1 = Eulerf(q_rotor_1);
 
-	// Extract roll and pitch
-	att_control(0) = e_rotor_0.phi();
-	att_control(1) = e_rotor_0.theta();
-	// att_control(2) = 0.f;
+	// // Extract roll and pitch
+	_att_control_0(0) = e_rotor_0.phi();
+	_att_control_0(1) = e_rotor_0.theta();
+	_att_control_0(2) = _virtual_control_0.norm();
 
-	att_control(5) = e_rotor_1.phi();
-	att_control(6) = e_rotor_1.theta();
-	// att_control(7) = 0.f;
+	_att_control_1(0) = e_rotor_1.phi();
+	_att_control_1(1) = e_rotor_1.theta();
+	_att_control_1(2) = _virtual_control_1.norm();
 
 	/* For now do all control calculations in SI units (N,m,etc) then convert to normalised (-1 .. 1) range in the final step
 	*  Consider doing all calculations normalised?
 	*/
 
 	// Calculate thrust (channel 3) for arming/disarming safety logic
-	att_control(3) = (_virtual_control_0.norm() + _virtual_control_1.norm()) / 2 / _param_mpc_max_thrust.get();
-
-	return att_control;
+	_att_control_thrust = (_att_control_0(2)+_att_control_1(2)) / 2 / _param_mpc_max_thrust.get();
 }
 
 /*
@@ -634,7 +632,7 @@ MulticopterAttitudeControl::convert_virtual_input()
  * Output: '_att_control' vector
  */
 void
-MulticopterAttitudeControl::control_attitude_rates(float dt)
+Multicopter6dofControl::control_attitude_rates(float dt)
 {
 	// /* reset integral if disarmed */
 	// if (!_v_control_mode.flag_armed || !_vehicle_status.is_rotary_wing) {
@@ -697,12 +695,12 @@ MulticopterAttitudeControl::control_attitude_rates(float dt)
 				_param_mpc_lqr_k69.get() * rates_err(2) + _partial_controls.control[5];
 
 	// Convert virtual (Fx/y/z) control input to actual (alpha/beta/T) input
-	_att_control = convert_virtual_input();
+	convert_virtual_input();
 
 }
 
 void
-MulticopterAttitudeControl::publish_rates_setpoint()
+Multicopter6dofControl::publish_rates_setpoint()
 {
 	_v_rates_sp.roll = _rates_sp(0);
 	_v_rates_sp.pitch = _rates_sp(1);
@@ -715,7 +713,7 @@ MulticopterAttitudeControl::publish_rates_setpoint()
 }
 
 void
-MulticopterAttitudeControl::publish_rate_controller_status()
+Multicopter6dofControl::publish_rate_controller_status()
 {
 	rate_ctrl_status_s rate_ctrl_status = {};
 	rate_ctrl_status.timestamp = hrt_absolute_time();
@@ -729,13 +727,15 @@ MulticopterAttitudeControl::publish_rate_controller_status()
 }
 
 void
-MulticopterAttitudeControl::publish_actuator_controls()
+Multicopter6dofControl::publish_actuator_controls()
 {
-	_actuators.control[0] = (PX4_ISFINITE(_att_control(0))) ? _att_control(0) : 0.0f;
-	_actuators.control[1] = (PX4_ISFINITE(_att_control(1))) ? _att_control(1) : 0.0f;
-	_actuators.control[2] = (PX4_ISFINITE(_att_control(2))) ? _att_control(2) : 0.0f;
+	_actuators.control[0] = (PX4_ISFINITE(_att_control_0(0))) ? _att_control_0(0) : 0.0f;
+	_actuators.control[1] = (PX4_ISFINITE(_att_control_0(1))) ? _att_control_0(1) : 0.0f;
+	_actuators.control[2] = (PX4_ISFINITE(_att_control_0(2))) ? _att_control_0(2) : 0.0f;
+	_actuators.control[5] = (PX4_ISFINITE(_att_control_1(0))) ? _att_control_1(0) : 0.0f;
+	_actuators.control[6] = (PX4_ISFINITE(_att_control_1(1))) ? _att_control_1(1) : 0.0f;
+	_actuators.control[7] = (PX4_ISFINITE(_att_control_1(2))) ? _att_control_1(2) : 0.0f;
 	_actuators.control[3] = (PX4_ISFINITE(_thrust_sp)) ? _thrust_sp : 0.0f;
-	_actuators.control[7] = (float)_landing_gear.landing_gear;
 	_actuators.timestamp = hrt_absolute_time();
 	_actuators.timestamp_sample = _sensor_gyro.timestamp;
 
@@ -752,7 +752,7 @@ MulticopterAttitudeControl::publish_actuator_controls()
 }
 
 void
-MulticopterAttitudeControl::run()
+Multicopter6dofControl::run()
 {
 
 	/*
@@ -911,7 +911,9 @@ MulticopterAttitudeControl::run()
 					_rates_sp.zero();
 					_rates_int.zero();
 					_thrust_sp = 0.0f;
-					_att_control.zero();
+					_att_control_0.zero();
+					_att_control_1.zero();
+					_att_control_thrust = 0.0f;
 					_virtual_control_0.zero();
 					_virtual_control_1.zero();
 					publish_actuator_controls();
@@ -969,9 +971,9 @@ MulticopterAttitudeControl::run()
 	orb_unsubscribe(_landing_gear_sub);
 }
 
-int MulticopterAttitudeControl::task_spawn(int argc, char *argv[])
+int Multicopter6dofControl::task_spawn(int argc, char *argv[])
 {
-	_task_id = px4_task_spawn_cmd("mc_att_control",
+	_task_id = px4_task_spawn_cmd("mc_6dof_control",
 					   SCHED_DEFAULT,
 					   SCHED_PRIORITY_ATTITUDE_CONTROL,
 					   1700,
@@ -986,17 +988,18 @@ int MulticopterAttitudeControl::task_spawn(int argc, char *argv[])
 	return 0;
 }
 
-MulticopterAttitudeControl *MulticopterAttitudeControl::instantiate(int argc, char *argv[])
+Multicopter6dofControl *Multicopter6dofControl::instantiate(int argc, char *argv[])
 {
-	return new MulticopterAttitudeControl();
+	return new Multicopter6dofControl();
 }
 
-int MulticopterAttitudeControl::custom_command(int argc, char *argv[])
+int Multicopter6dofControl::custom_command(int argc, char *argv[])
 {
 	return print_usage("unknown command");
 }
 
-int mc_att_control_main(int argc, char *argv[])
+extern "C" __EXPORT int mc_6dof_control_main(int argc, char *argv[]);
+int mc_6dof_control_main(int argc, char *argv[])
 {
-	return MulticopterAttitudeControl::main(argc, argv);
+	return Multicopter6dofControl::main(argc, argv);
 }
