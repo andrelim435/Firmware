@@ -896,3 +896,15 @@ PARAM_DEFINE_FLOAT(MPC_LQR_K611, 0.0f);
  * @group Multicopter Position Control
  */
 PARAM_DEFINE_FLOAT(MPC_LQR_K612, 0.0f);
+
+/**
+ * Max thrust per rotor (N)
+ *
+ * Use to normalise thrust vector before sending to mixer
+ *
+ * @min 0
+ * @max 100
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(MPC_MAX_THRUST, 7.0f);

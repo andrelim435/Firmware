@@ -150,6 +150,11 @@ private:
 	 */
 	matrix::Vector3f pid_attenuations(float tpa_breakpoint, float tpa_rate);
 
+	/**
+	 * Convert virtual input (Fx/Fy/Fz) to actual input(tilt angles, thrust)
+	 */
+	matrix::Vector3f convert_virtual_input();
+
 	AttitudeControl _attitude_control; /**< class for attitude control calculations */
 
 	int		_v_att_sub{-1};			/**< vehicle attitude subscription */
@@ -329,7 +334,9 @@ private:
 		(ParamFloat<px4::params::MPC_LQR_K69>) _param_mpc_lqr_k69,
 		(ParamFloat<px4::params::MPC_LQR_K610>) _param_mpc_lqr_k610,
 		(ParamFloat<px4::params::MPC_LQR_K611>) _param_mpc_lqr_k611,
-		(ParamFloat<px4::params::MPC_LQR_K612>) _param_mpc_lqr_k612
+		(ParamFloat<px4::params::MPC_LQR_K612>) _param_mpc_lqr_k612,
+
+		(ParamFloat<px4::params::MPC_MAX_THRUST>) _param_mpc_max_thrust
 
 	)
 
