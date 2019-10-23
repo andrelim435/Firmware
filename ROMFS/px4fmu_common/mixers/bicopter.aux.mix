@@ -1,0 +1,29 @@
+Bicopter mixer for PX4FMU
+===========================
+
+This file defines the aux outputs mixer for a dual-axis tilt bicopter
+
+# @output AUX1 Pitch servo motor for rotor 1
+# @output AUX2 Roll servo motor for rotor 1
+# @output AUX3 Pitch servo motor for rotor 2
+# @output AUX4 Roll servo motor for rotor 2
+
+Servo 1
+
+M: 1
+S: 3 0	-10000  10000	0	-10000  10000
+
+Servo 2
+
+M: 1
+S: 3 1	-10000	10000	0	-10000  10000
+
+Servo 3
+
+M: 1
+S: 0 5	-10000	10000	0	-10000  10000
+
+Servo 4
+
+M: 1
+S: 0 6	-10000	10000	0	-10000  10000

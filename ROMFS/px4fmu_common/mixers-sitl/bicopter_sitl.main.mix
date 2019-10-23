@@ -1,0 +1,37 @@
+Mixer for bicopter
+================================================
+
+This file defines a single mixer for a tiltrotor (SITL gazebo) with motors in X configuration. The plane has two ailerons and one elevator.
+
+# motor 1
+M: 1
+O:      10000  10000      0 -10000  10000
+S: 3 2      0  20000 -10000 -10000  10000
+
+# motor 2
+M: 1
+O:      10000  10000      0 -10000  10000
+S: 3 7      0  20000 -10000 -10000  10000
+
+Z:
+Z:
+
+# pitch servo motor 1
+M: 1
+O:      10000  10000      0 -10000  10000
+S: 3 0      0  20000 -10000 -10000  10000
+
+# roll servo motor 1
+M: 1
+O:      10000  10000      0 -10000  10000
+S: 3 1      0  20000 -10000 -10000  10000
+
+# pitch servo motor 2
+M: 1
+O:      10000  10000      0 -10000  10000
+S: 3 5      0  20000 -10000 -10000  10000
+
+# roll servo motor 2
+M: 1
+O:      10000  10000      0 -10000  10000
+S: 3 6      0  20000 -10000 -10000  10000

@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# @name Dual-axis tilt Bicopter
+#
+# @type Bicopter
+# @class Copter
+#
+# @output MAIN1 motor 1
+# @output MAIN2 motor 2
+# @output MAIN3 rotor 1 pitch servo
+# @output MAIN4 rotor 1 roll servo
+# @output MAIN5 rotor 2 pitch servo
+# @output MAIN6 rotor 2 roll servo
+#
+# @maintainer Trent Lukaczyk <aerialhedgehog@gmail.com>
+#
+
+sh /etc/init.d/rc.bicopter_defaults
+
+set MIXER bicopter
+
+set PWM_OUT 1234
