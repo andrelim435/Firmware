@@ -160,7 +160,7 @@ then
 
 	if [ $MAV_TYPE = none ]
 	then
-		# Set a default MAV_TYPE = 19 if not defined.
+		# Set a default MAV_TYPE = 23 if not defined.
 		set MAV_TYPE 23
 	fi
 
