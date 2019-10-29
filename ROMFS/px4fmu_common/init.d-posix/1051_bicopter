@@ -21,9 +21,92 @@ then
 	param set TRIG_MODE 4
 	param set MNT_MODE_IN 0
 	param set MAV_PROTO_VER 2
+
+	param set COM_DISARM_LAND -1
+
+	param set MPC_LQR_K11 1.2493
+	param set MPC_LQR_K12 -0.0000
+	param set MPC_LQR_K13 0.0000
+	param set MPC_LQR_K14 0.7071
+	param set MPC_LQR_K15 -0.0000
+	param set MPC_LQR_K16 -0.0000
+	param set MPC_LQR_K17 -0.0271
+	param set MPC_LQR_K18 0.0000
+	param set MPC_LQR_K19 -0.8923
+	param set MPC_LQR_K110 -0.0202
+	param set MPC_LQR_K111 0.0000
+	param set MPC_LQR_K112 -0.7068
+
+	param set MPC_LQR_K21 0.0000
+	param set MPC_LQR_K22 1.2493
+	param set MPC_LQR_K23 0.0000
+	param set MPC_LQR_K24 0.0000
+	param set MPC_LQR_K25 0.7071
+	param set MPC_LQR_K26 0.0000
+	param set MPC_LQR_K27 0.0000
+	param set MPC_LQR_K28 -3.2899
+	param set MPC_LQR_K29 0.0000
+	param set MPC_LQR_K210 0.0000
+	param set MPC_LQR_K211 -0.7071
+	param set MPC_LQR_K212 0.0000
+
+	param set MPC_LQR_K31 0.0000
+	param set MPC_LQR_K32 0.0000
+	param set MPC_LQR_K33 1.2493
+	param set MPC_LQR_K34 -0.0000
+	param set MPC_LQR_K35 0.0000
+	param set MPC_LQR_K36 0.7071
+	param set MPC_LQR_K37 0.9472
+	param set MPC_LQR_K38 0.0000
+	param set MPC_LQR_K39 -0.0255
+	param set MPC_LQR_K310 0.7068
+	param set MPC_LQR_K311 0.0000
+	param set MPC_LQR_K312 -0.0202
+
+	param set MPC_LQR_K41  1.2493
+	param set MPC_LQR_K42  0.0000
+	param set MPC_LQR_K43  -0.0000
+	param set MPC_LQR_K44  0.7071
+	param set MPC_LQR_K45  0.0000
+	param set MPC_LQR_K46  0.0000
+	param set MPC_LQR_K47  0.0271
+	param set MPC_LQR_K48  -0.0000
+	param set MPC_LQR_K49  0.8923
+	param set MPC_LQR_K410 0.0202
+	param set MPC_LQR_K411 -0.0000
+	param set MPC_LQR_K412 0.7068
+
+
+	param set MPC_LQR_K51  0.0000
+	param set MPC_LQR_K52  1.2493
+	param set MPC_LQR_K53  0.0000
+	param set MPC_LQR_K54  0.0000
+	param set MPC_LQR_K55  0.7071
+	param set MPC_LQR_K56  0.0000
+	param set MPC_LQR_K57  0.0000
+	param set MPC_LQR_K58  3.2899
+	param set MPC_LQR_K59  0.0000
+	param set MPC_LQR_K510 0.0000
+	param set MPC_LQR_K511 0.7071
+	param set MPC_LQR_K512 0.0000
+
+	param set MPC_LQR_K61  -0.0000
+	param set MPC_LQR_K62  -0.0000
+	param set MPC_LQR_K63  1.2493
+	param set MPC_LQR_K64  -0.0000
+	param set MPC_LQR_K65  0.0000
+	param set MPC_LQR_K66  0.7071
+	param set MPC_LQR_K67  -0.9472
+	param set MPC_LQR_K68  -0.0000
+	param set MPC_LQR_K69  0.0255
+	param set MPC_LQR_K610 -0.7068
+	param set MPC_LQR_K611 -0.0000
+	param set MPC_LQR_K612 0.0202
+
+	param set MPC_MAX_THRUST 1.5
 fi
 
-set MAV_TYPE 23
+set MAV_TYPE 2
 
 set MIXER_FILE etc/mixers-sitl/bicopter_sitl.main.mix
 set MIXER custom
