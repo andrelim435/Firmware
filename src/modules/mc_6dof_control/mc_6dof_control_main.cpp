@@ -549,45 +549,68 @@ Multicopter6dofControl::control_attitude()
 	// physical thrust axis is the negative of body z axis
 	_thrust_sp = -_v_att_sp.thrust_body[2];
 
-	// Quatf q = Quatf(_v_att.q);
-	// // Should always be zero for now. Use this when adding full 6dof control to offboard mode
-	// Quatf qd = Quatf(_v_att_sp.q_d);
-
-	// // ensure input quaternions are exactly normalized because acosf(1.00001) == NaN
-	// q.normalize();
-	// qd.normalize();
-
-	// // quaternion attitude control law, qe is rotation from q to qd
-	// const Quatf qe = q.inversed() * qd;
-
-	// // using sin(alpha/2) scaled rotation axis as attitude error (see quaternion definition by axis angle)
-	// // also taking care of the antipodal unit quaternion ambiguity
-	// const Vector3f eq = 2.f * math::signNoZero(qe(0)) * qe.imag();
-
-	// // Calculate partial LQR output
-	// // Rotor 1: phi,theta,psi
-	// _p_control_att_0(0) = _param_mpc_lqr_k110.get() * eq(0) + _param_mpc_lqr_k111.get() * eq(1) + _param_mpc_lqr_k112.get() * eq(2);
-	// _p_control_att_0(1) = _param_mpc_lqr_k210.get() * eq(0) + _param_mpc_lqr_k211.get() * eq(1) + _param_mpc_lqr_k212.get() * eq(2);
-	// _p_control_att_0(2) = _param_mpc_lqr_k310.get() * eq(0) + _param_mpc_lqr_k311.get() * eq(1) + _param_mpc_lqr_k312.get() * eq(2);
-	// // Rotor 2: phi,theta,psi
-	// _p_control_att_1(0) = _param_mpc_lqr_k410.get() * eq(0) + _param_mpc_lqr_k411.get() * eq(1) + _param_mpc_lqr_k412.get() * eq(2);
-	// _p_control_att_1(1) = _param_mpc_lqr_k510.get() * eq(0) + _param_mpc_lqr_k511.get() * eq(1) + _param_mpc_lqr_k512.get() * eq(2);
-	// _p_control_att_1(2) = _param_mpc_lqr_k610.get() * eq(0) + _param_mpc_lqr_k611.get() * eq(1) + _param_mpc_lqr_k612.get() * eq(2);
-
-	// TESTING
+	Quatf q = Quatf(_v_att.q);
+	// Should always be zero for now. Use this when adding full 6dof control to offboard mode
 	Quatf qd = Quatf(_v_att_sp.q_d);
-	Eulerf ed = Eulerf(qd.inversed());
 
-	_thrust_sp = _thrust_sp * _param_mpc_max_thrust.get();
+	// ensure input quaternions are exactly normalized because acosf(1.00001) == NaN
+	q.normalize();
+	qd.normalize();
 
+	// quaternion attitude control law, qe is rotation from q to qd
+	const Quatf qe = q.inversed() * qd;
+
+	// using sin(alpha/2) scaled rotation axis as attitude error (see quaternion definition by axis angle)
+	// also taking care of the antipodal unit quaternion ambiguity
+	// const Vector3f eq = 1.f * math::signNoZero(qe(0)) * qe.imag();
+	Vector3f eq = Eulerf(qe);
+
+	// /*	Set eq to only desired (no current att) */
+	// eq = Eulerf(qd);
+	// eq(2) = 0.f;
+
+	// /*	Remove certain channels for testing */
+	// eq = -Eulerf(q);
+	// eq(0) = 0.f;
+	// eq(1) = 0.f;
+	// eq(2) = 0.f;
+
+	// /*	Quaternion to Euler formula from wikipedia */
+	// eq(0) = atan2f( 2*(qe(0)*qe(1) + qe(2)*qe(3)), 1 - 2*(qe(1)*qe(1) + qe(2)*qe(2)) );
+	// eq(1) = asinf( 2*(qe(0)*qe(2) + qe(3)*qe(1)) );
+	// eq(2) = atan2f( 2*(qe(0)*qe(3) + qe(1)*qe(2)), 1 - 2*(qe(2)*qe(2) + qe(3)*qe(3)) );
+
+	eq(1) *= -1;
+
+	// Calculate partial LQR output
 	// Rotor 1: phi,theta,psi
-	_p_control_att_0(0) = _thrust_sp * sin(ed.phi());
-	_p_control_att_0(1) = _thrust_sp * sin(ed.theta());
-	_p_control_att_0(2) = _thrust_sp;
+	_p_control_att_0(0) = _param_mpc_lqr_k410.get() * eq(0) + _param_mpc_lqr_k111.get() * eq(1) + _param_mpc_lqr_k112.get() * eq(2);
+	_p_control_att_0(1) = _param_mpc_lqr_k510.get() * eq(0) + _param_mpc_lqr_k211.get() * eq(1) + _param_mpc_lqr_k212.get() * eq(2);
+	_p_control_att_0(2) = _param_mpc_lqr_k610.get() * eq(0) + _param_mpc_lqr_k311.get() * eq(1) + _param_mpc_lqr_k312.get() * eq(2);
 	// Rotor 2: phi,theta,psi
-	_p_control_att_1(0) = _thrust_sp * sin(ed.phi());
-	_p_control_att_1(1) = _thrust_sp * sin(ed.theta());
-	_p_control_att_1(2) = _thrust_sp;
+	_p_control_att_1(0) = _param_mpc_lqr_k110.get() * eq(0) + _param_mpc_lqr_k411.get() * eq(1) + _param_mpc_lqr_k412.get() * eq(2);
+	_p_control_att_1(1) = _param_mpc_lqr_k210.get() * eq(0) + _param_mpc_lqr_k511.get() * eq(1) + _param_mpc_lqr_k512.get() * eq(2);
+	_p_control_att_1(2) = _param_mpc_lqr_k310.get() * eq(0) + _param_mpc_lqr_k611.get() * eq(1) + _param_mpc_lqr_k612.get() * eq(2);
+
+	/*	Add gravity vector */
+	const Vector3f gravity_body_frame = q.conjugate_inversed(Vector3f(0,0,0.3));
+	_p_control_att_0 += gravity_body_frame;
+	_p_control_att_1 += gravity_body_frame;
+
+	// // TESTING
+	// Quatf qd = Quatf(_v_att_sp.q_d);
+	// Eulerf ed = Eulerf(qd.inversed());
+
+	// _thrust_sp = _thrust_sp * _param_mpc_max_thrust.get();
+
+	// // Rotor 1: phi,theta,psi
+	// _p_control_att_0(0) = _thrust_sp * sin(ed.phi());
+	// _p_control_att_0(1) = _thrust_sp * sin(ed.theta());
+	// _p_control_att_0(2) += _thrust_sp * _param_mpc_max_thrust.get();
+	// // Rotor 2: phi,theta,psi
+	// _p_control_att_1(0) = _thrust_sp * sin(ed.phi());
+	// _p_control_att_1(1) = _thrust_sp * sin(ed.theta());
+	// _p_control_att_1(2) += _thrust_sp * _param_mpc_max_thrust.get();
 }
 
 /*
@@ -609,59 +632,6 @@ Multicopter6dofControl::pid_attenuations(float tpa_breakpoint, float tpa_rate)
 	pidAttenuationPerAxis(AXIS_INDEX_YAW) = 1.0;
 
 	return pidAttenuationPerAxis;
-}
-
-/*
- * Convert virtual (Fx/y/z) input to actual (alpha/beta/T) input
- * Input: 'virtual_control' vectors
- * Output: '_att_control' vector
- */
-void
-Multicopter6dofControl::convert_virtual_input()
-{
-	// // Generate quaternion from 2 vectors [0 0 -1] and [Fx Fy Fz]
-	// Quatf q_rotor_0(Vector3f(0,0,-1), Vector3f(_virtual_control_0(0),_virtual_control_0(1),_virtual_control_0(2)));
-	// Quatf q_rotor_1(Vector3f(0,0,-1), Vector3f(_virtual_control_1(0),_virtual_control_1(1),_virtual_control_1(2)));
-
-	// // Convert quaternion to euler angles, return pitch (y-axis) as alpha and roll (x-axis) as beta
-	// Eulerf e_rotor_0 = Eulerf(q_rotor_0);
-	// Eulerf e_rotor_1 = Eulerf(q_rotor_1);
-
-	// // Extract roll and pitch
-	// _att_control_0(0) = atan2f(_virtual_control_0(0), -_virtual_control_0(2)) / 0.75f;
-	// _att_control_0(1) = atan2f(_virtual_control_0(1), math::sign(_virtual_control_0(0)) *
-	// 			sqrt(pow(_virtual_control_0(0),2) + pow(_virtual_control_0(2),2))) / 0.35f;
-	// _att_control_0(2) = _virtual_control_0.norm() / _param_mpc_max_thrust.get();
-
-	// _att_control_1(0) = atan2f(_virtual_control_1(0), -_virtual_control_1(2)) / 0.75f;
-	// _att_control_1(1) = atan2f(_virtual_control_1(1), math::sign(_virtual_control_1(0)) *
-	// 			sqrt(pow(_virtual_control_1(0),2) + pow(_virtual_control_1(2),2))) / 0.35f;
-	// _att_control_1(2) = _virtual_control_1.norm() / _param_mpc_max_thrust.get();
-
-	// Extract euler from rotation matrix
-	_att_control_0(1) = atan2f(-_virtual_control_0(1), _virtual_control_0(2));
-	_att_control_0(0) = atan2f(_virtual_control_0(0), _virtual_control_0(2)/cosf(_att_control_0(1)));
-	_att_control_0(2) = _virtual_control_0.norm();
-
-	_att_control_1(1) = atan2f(-_virtual_control_1(1), _virtual_control_1(2));
-	_att_control_1(0) = atan2f(_virtual_control_1(0), _virtual_control_1(2)/cosf(_att_control_1(1)));
-	_att_control_1(2) = _virtual_control_1.norm() / _param_mpc_max_thrust.get();
-
-	// // TESTING
-	// _att_control_0(0) = _virtual_control_0(0);
-	// _att_control_0(1) = _virtual_control_0(1);
-	// _att_control_0(2) = _thrust_sp;
-
-	// _att_control_1(0) = _virtual_control_1(0);
-	// _att_control_1(1) = _virtual_control_1(1);
-	// _att_control_1(2) = _thrust_sp;
-
-	/* For now do all control calculations in SI units (N,m,etc) then convert to normalised (-1 .. 1) range in the final step
-	*  Consider doing all calculations normalised?
-	*/
-
-	// Calculate thrust (channel 3) for arming/disarming safety logic
-	_att_control_thrust = (_att_control_0(2)+_att_control_1(2)) / 2;
 }
 
 /*
@@ -709,47 +679,73 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 	rates(1) -= _sensor_bias.gyro_y_bias;
 	rates(2) -= _sensor_bias.gyro_z_bias;
 
-	// /* angular rates error */
-	// // Should I accept rate sp for offboard control?
-	// Vector3f rates_err = -rates;
+	/* apply low-pass filtering to the rates for D-term */
+	Vector3f rates_filtered(_lp_filters_d.apply(rates));
 
-	// /* apply low-pass filtering to the rates for D-term */
-	// Vector3f rates_filtered(_lp_filters_d.apply(rates));
+	/* angular rates error */
+	// Should I accept rate sp for offboard control?
+	Vector3f rates_err = -rates;
+	// rates_err(2) = 0.f;
 
-	// // Calculate final LQR output (rate) and combine with all previous partial controls (pos/vel/att)
-	// // Rotor 1
-	// _virtual_control_0(0) = _param_mpc_lqr_k17.get() * rates_err(0) + _param_mpc_lqr_k18.get() * rates_err(1) +
-	// 			_param_mpc_lqr_k19.get() * rates_err(2)
-	// 			+ _p_control_att_0(0) + _partial_controls.control[0];
-	// _virtual_control_0(1) = _param_mpc_lqr_k27.get() * rates_err(0) + _param_mpc_lqr_k28.get() * rates_err(1) +
-	// 			_param_mpc_lqr_k29.get() * rates_err(2)
-	// 			+ _p_control_att_0(1) + _partial_controls.control[1];
-	// _virtual_control_0(2) = _param_mpc_lqr_k37.get() * rates_err(0) + _param_mpc_lqr_k38.get() * rates_err(1) +
-	// 			_param_mpc_lqr_k39.get() * rates_err(2)
-	// 			+ _p_control_att_0(2) + _partial_controls.control[2];
+	// Calculate final LQR output (rate) and combine with all previous partial controls (pos/vel/att)
+	// Rotor 1
+	_virtual_control_0(0) = _param_mpc_lqr_k17.get() * rates_err(0) + _param_mpc_lqr_k18.get() * rates_err(1) +
+				_param_mpc_lqr_k19.get() * rates_err(2)
+				+ _p_control_att_0(0) + _partial_controls.control[0];
+	_virtual_control_0(1) = _param_mpc_lqr_k27.get() * rates_err(0) + _param_mpc_lqr_k28.get() * rates_err(1) +
+				_param_mpc_lqr_k29.get() * rates_err(2)
+				+ _p_control_att_0(1) + _partial_controls.control[1];
+	_virtual_control_0(2) = _param_mpc_lqr_k37.get() * rates_err(0) + _param_mpc_lqr_k38.get() * rates_err(1) +
+				_param_mpc_lqr_k39.get() * rates_err(2)
+				+ _p_control_att_0(2) + _partial_controls.control[2];
 
-	// // Rotor 2
-	// _virtual_control_1(0) = _param_mpc_lqr_k47.get() * rates_err(0) + _param_mpc_lqr_k48.get() * rates_err(1) +
-	// 			_param_mpc_lqr_k49.get() * rates_err(2)
-	// 			+ _p_control_att_1(0) + _partial_controls.control[3];
-	// _virtual_control_1(1) = _param_mpc_lqr_k57.get() * rates_err(0) + _param_mpc_lqr_k58.get() * rates_err(1) +
-	// 			_param_mpc_lqr_k59.get() * rates_err(2)
-	// 			+ _p_control_att_1(1) + _partial_controls.control[4];
-	// _virtual_control_1(2) = _param_mpc_lqr_k67.get() * rates_err(0) + _param_mpc_lqr_k68.get() * rates_err(1) +
-	// 			_param_mpc_lqr_k69.get() * rates_err(2)
-	// 			+ _p_control_att_1(2) + _partial_controls.control[5];
+	// Rotor 2
+	_virtual_control_1(0) = _param_mpc_lqr_k47.get() * rates_err(0) + _param_mpc_lqr_k48.get() * rates_err(1) +
+				_param_mpc_lqr_k49.get() * rates_err(2)
+				+ _p_control_att_1(0) + _partial_controls.control[3];
+	_virtual_control_1(1) = _param_mpc_lqr_k57.get() * rates_err(0) + _param_mpc_lqr_k58.get() * rates_err(1) +
+				_param_mpc_lqr_k59.get() * rates_err(2)
+				+ _p_control_att_1(1) + _partial_controls.control[4];
+	_virtual_control_1(2) = _param_mpc_lqr_k67.get() * rates_err(0) + _param_mpc_lqr_k68.get() * rates_err(1) +
+				_param_mpc_lqr_k69.get() * rates_err(2)
+				+ _p_control_att_1(2) + _partial_controls.control[5];
 
 	// TESTING
 	_virtual_control_0(0) = _p_control_att_0(0) + _partial_controls.control[0];
 	_virtual_control_0(1) = _p_control_att_0(1) + _partial_controls.control[1];
-	_virtual_control_0(2) = _p_control_att_0(2);
+	_virtual_control_0(2) = _p_control_att_0(2) + _partial_controls.control[2];
 	_virtual_control_1(0) = _p_control_att_1(0) + _partial_controls.control[3];
 	_virtual_control_1(1) = _p_control_att_1(1) + _partial_controls.control[4];
-	_virtual_control_1(2) = _p_control_att_1(2);
+	_virtual_control_1(2) = _p_control_att_1(2) + _partial_controls.control[5];
 
 	// Convert virtual (Fx/y/z) control input to actual (alpha/beta/T) input
 	convert_virtual_input();
 
+}
+
+/*
+ * Convert virtual (Fx/y/z) input to actual (alpha/beta/T) input
+ * Input: 'virtual_control' vectors
+ * Output: '_att_control' vector
+ */
+void
+Multicopter6dofControl::convert_virtual_input()
+{
+	// Extract euler from rotation matrix
+	_att_control_0(1) = atan2f(-_virtual_control_0(1), _virtual_control_0(2)) / 0.75f;
+	_att_control_0(0) = atan2f(_virtual_control_0(0), _virtual_control_0(2)/cosf(_att_control_0(1))) / 0.75f;
+	_att_control_0(2) = _virtual_control_0.norm() / _param_mpc_max_thrust.get();
+
+	_att_control_1(1) = atan2f(-_virtual_control_1(1), _virtual_control_1(2)) / 0.75f;
+	_att_control_1(0) = atan2f(_virtual_control_1(0), _virtual_control_1(2)/cosf(_att_control_1(1))) / 0.75f;
+	_att_control_1(2) = _virtual_control_1.norm() / _param_mpc_max_thrust.get();
+
+	/* For now do all control calculations in SI units (N,m,etc) then convert to normalised (-1 .. 1) range in the final step
+	*  Consider doing all calculations normalised?
+	*/
+
+	// Calculate thrust (channel 3) for arming/disarming safety logic
+	_att_control_thrust = (_att_control_0(2)+_att_control_1(2)) / 2;
 }
 
 void

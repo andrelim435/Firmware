@@ -907,4 +907,4 @@ PARAM_DEFINE_FLOAT(MPC_LQR_K612, 0.0f);
  * @decimal 2
  * @group Multicopter Position Control
  */
-PARAM_DEFINE_FLOAT(MPC_MAX_THRUST, 7.0f);
+PARAM_DEFINE_FLOAT(MPC_MAX_THRUST, 22.0f);
