@@ -215,6 +215,7 @@ private:
 	matrix::Vector3f _rates_sp;			/**< angular rates setpoint */
 	matrix::Vector3f _rates_int;			/**< angular rates integral error */
 
+	matrix::Vector3f _att_control;		/**< attitude control vector */
 	matrix::Vector3f _att_control_0;		/**< attitude control vector */
 	matrix::Vector3f _att_control_1;		/**< attitude control vector */
 	float 		_att_control_thrust{0.0f};	/**< Calculate overall thrust magnitude */

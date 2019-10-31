@@ -538,7 +538,7 @@ Multicopter6dofControl::generate_attitude_setpoint(float dt, bool reset_yaw_sp)
 void
 Multicopter6dofControl::control_attitude()
 {
-		vehicle_attitude_setpoint_poll();
+	vehicle_attitude_setpoint_poll();
 
 	// reinitialize the setpoint while not armed to make sure no value from the last mode or flight is still kept
 	if (!_v_control_mode.flag_armed) {
@@ -688,7 +688,7 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 
 	}
 
-	convert_virtual_input()
+	convert_virtual_input();
 
 }
 
@@ -700,14 +700,55 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 void
 Multicopter6dofControl::convert_virtual_input()
 {
-	// Extract euler from rotation matrix
-	_att_control_0(1) = atan2f(-_virtual_control_0(1), _virtual_control_0(2)) / 0.75f;
-	_att_control_0(0) = atan2f(_virtual_control_0(0), _virtual_control_0(2)/cosf(_att_control_0(1))) / 0.75f;
+	// _att_control *= 4;
+
+	/*	Calculate rotor force to achieve desired torque	*/
+	// Calculate delta x/z (rotor 1 minus rotor 2)
+	const float delta_x = -0.007f * _att_control(0) - 1.3866f*_att_control(2) - 0.007f * _att_control(0) + 1.3866f*_att_control(2);
+	const float delta_z = 1.4681f * _att_control(0) - 0.4842f*_att_control(2) - 1.3866f * _att_control(0) + 0.007f*_att_control(2);
+
+	_virtual_control_0(0) = delta_x/2;
+	_virtual_control_0(1) = 8.333f * _att_control(1);
+	_virtual_control_0(2) = 0.6f + delta_z/2;
+	_virtual_control_1(0) = -delta_x/2;
+	_virtual_control_1(1) = -8.333f * _att_control(1);
+	_virtual_control_1(2) = 0.6f - delta_z/2;
+
+	// if (delta_z > 0.f) {
+	// 	_virtual_control_0(2) += delta_z;
+	// } else {
+	// 	_virtual_control_1(2) -= delta_z;
+	// }
+
+	_att_control_0(0) = asinf(_virtual_control_0(0)/_virtual_control_0(2)) / 0.75f;
+	_att_control_0(1) = asinf(_virtual_control_0(1)/_virtual_control_0(2)) / 0.75f;
 	_att_control_0(2) = _virtual_control_0.norm() / _param_mpc_max_thrust.get();
 
-	_att_control_1(1) = atan2f(-_virtual_control_1(1), _virtual_control_1(2)) / 0.75f;
-	_att_control_1(0) = atan2f(_virtual_control_1(0), _virtual_control_1(2)/cosf(_att_control_1(1))) / 0.75f;
+	_att_control_1(0) = asinf(_virtual_control_1(0)/_virtual_control_1(2)) / 0.75f;
+	_att_control_1(1) = asinf(_virtual_control_1(1)/_virtual_control_1(2)) / 0.75f;
 	_att_control_1(2) = _virtual_control_1.norm() / _param_mpc_max_thrust.get();
+
+	// _att_control_0(0) = 0.f;
+	// _att_control_0(1) = 0.f;
+	// _att_control_1(0) = 0.f;
+	// _att_control_1(1) = 0.f;
+
+	// _att_control_0(2) = 0.6f / _param_mpc_max_thrust.get();
+	// _att_control_1(2) = 0.6f / _param_mpc_max_thrust.get();
+
+	// /*	Add gravity vector	*/
+	// // const Vector3f gravity_body_frame = q.conjugate_inversed(Vector3f(0,0,0.3));
+	// _virtual_control_0 += Vector3f(0,0,0.5);
+	// _virtual_control_1 += Vector3f(0,0,0.5);
+
+	// // Extract euler from rotation matrix
+	// _att_control_0(1) = atan2f(-_virtual_control_0(1), -_virtual_control_0(2)) / 0.75f;
+	// _att_control_0(0) = atan2f(_virtual_control_0(0), -_virtual_control_0(2)/cosf(_att_control_0(1))) / 0.75f;
+	// _att_control_0(2) = _virtual_control_0.norm() / _param_mpc_max_thrust.get();
+
+	// _att_control_1(1) = atan2f(-_virtual_control_1(1), -_virtual_control_1(2)) / 0.75f;
+	// _att_control_1(0) = atan2f(_virtual_control_1(0), -_virtual_control_1(2)/cosf(_att_control_1(1))) / 0.75f;
+	// _att_control_1(2) = _virtual_control_1.norm() / _param_mpc_max_thrust.get();
 
 	/* For now do all control calculations in SI units (N,m,etc) then convert to normalised (-1 .. 1) range in the final step
 	*  Consider doing all calculations normalised?
