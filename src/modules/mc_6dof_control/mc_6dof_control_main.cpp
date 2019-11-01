@@ -700,32 +700,70 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 void
 Multicopter6dofControl::convert_virtual_input()
 {
-	// _att_control *= 4;
+	/* Torque to rotor force matrix,
+	 * This is the moore-penrose inverse of the rotor force to torque mapping
+	 */
+	Matrix<float,6,3> torque_to_rotor;
+	torque_to_rotor(0,0) = -2.368826;
+	torque_to_rotor(0,1) = -2.500000;
+	torque_to_rotor(0,2) = -5.099214;
+	torque_to_rotor(1,0) = -1.262389;
+	torque_to_rotor(1,1) = 7.500000;
+	torque_to_rotor(1,2) = -0.984959;
+	torque_to_rotor(2,0) = -4.935054;
+	torque_to_rotor(2,1) = 0.000000;
+	torque_to_rotor(2,2) = -2.290029;
+	torque_to_rotor(3,0) = 2.368826;
+	torque_to_rotor(3,1) = -2.500000;
+	torque_to_rotor(3,2) = 5.099214;
+	torque_to_rotor(4,0) = -1.262389;
+	torque_to_rotor(4,1) = -7.500000;
+	torque_to_rotor(4,2) = -0.984959;
+	torque_to_rotor(5,0) = 4.935054;
+	torque_to_rotor(5,1) = -0.000000;
+	torque_to_rotor(5,2) = 2.290029;
 
-	/*	Calculate rotor force to achieve desired torque	*/
-	// Calculate delta x/z (rotor 1 minus rotor 2)
-	const float delta_x = -0.007f * _att_control(0) - 1.3866f*_att_control(2) - 0.007f * _att_control(0) + 1.3866f*_att_control(2);
-	const float delta_z = 1.4681f * _att_control(0) - 0.4842f*_att_control(2) - 1.3866f * _att_control(0) + 0.007f*_att_control(2);
+	Vector3f _desired_torque = _att_control;
+	_desired_torque(0) *= 0.0197563f;
+	_desired_torque(1) *= 0.01458929f + 0.0028f;
+	_desired_torque(2) *= 0.01477f;
+	// _desired_torque(1) = 0.f;
+	// _desired_torque(2) = 0.f;
 
-	_virtual_control_0(0) = delta_x/2;
-	_virtual_control_0(1) = 8.333f * _att_control(1);
-	_virtual_control_0(2) = 0.6f + delta_z/2;
-	_virtual_control_1(0) = -delta_x/2;
-	_virtual_control_1(1) = -8.333f * _att_control(1);
-	_virtual_control_1(2) = 0.6f - delta_z/2;
+	/* Calculate desired rotor forces */
+	const Vector<float,6> rotor_force = torque_to_rotor * _desired_torque;
+	// Delta_z is rotor 2 minus 1 because rotor force is NED. Desired thrust is calculated in the down z-axis
+	const float delta_z = rotor_force(2) - rotor_force(5);
 
-	// if (delta_z > 0.f) {
-	// 	_virtual_control_0(2) += delta_z;
-	// } else {
-	// 	_virtual_control_1(2) -= delta_z;
-	// }
+	_virtual_control_0(0) = rotor_force(0);
+	_virtual_control_0(1) = rotor_force(1);
+	_virtual_control_0(2) = 0.37f;
 
-	_att_control_0(0) = asinf(_virtual_control_0(0)/_virtual_control_0(2)) / 0.75f;
-	_att_control_0(1) = asinf(_virtual_control_0(1)/_virtual_control_0(2)) / 0.75f;
+	_virtual_control_1(0) = rotor_force(3);
+	_virtual_control_1(1) = rotor_force(4);
+	_virtual_control_1(2) = 0.37f;
+
+	if (delta_z > 0.f) {
+		_virtual_control_0(2) += delta_z;
+	} else {
+		_virtual_control_1(2) -= delta_z;
+	}
+
+	/* _virtual_control is
+	 * 0: roll
+	 * 1: pitch
+	 * 2: yaw
+	 * _att_control is
+	 * 0: Alpha (pitch)
+	 * 1: Beta (roll)
+	 * 2: Thrust
+	 */
+	_att_control_0(0) = asinf(_virtual_control_0(0)/_virtual_control_0(2)) / .75f;
+	_att_control_0(1) = -asinf(_virtual_control_0(1)/_virtual_control_0(2)) / .75f;
 	_att_control_0(2) = _virtual_control_0.norm() / _param_mpc_max_thrust.get();
 
-	_att_control_1(0) = asinf(_virtual_control_1(0)/_virtual_control_1(2)) / 0.75f;
-	_att_control_1(1) = asinf(_virtual_control_1(1)/_virtual_control_1(2)) / 0.75f;
+	_att_control_1(0) = asinf(_virtual_control_1(0)/_virtual_control_1(2)) / .75f;
+	_att_control_1(1) = -asinf(_virtual_control_1(1)/_virtual_control_1(2)) / .75f;
 	_att_control_1(2) = _virtual_control_1.norm() / _param_mpc_max_thrust.get();
 
 	// _att_control_0(0) = 0.f;
