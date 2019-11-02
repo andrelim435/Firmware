@@ -30,37 +30,37 @@ then
 	param set MPC_LQR_K13 	 0.000000
 	param set MPC_LQR_K14 	 7.542552
 	param set MPC_LQR_K15 	 -4.499651
-	param set MPC_LQR_K16 	 -15.837329
+	param set MPC_LQR_K16 	 -8.742540
 	param set MPC_LQR_K17 	 17.405000
 	param set MPC_LQR_K18 	 -9.653357
-	param set MPC_LQR_K19 	 -36.524516
+	param set MPC_LQR_K19 	 -11.550066
 	param set MPC_LQR_K21 	 -0.168483
 	param set MPC_LQR_K22 	 0.701994
-	param set MPC_LQR_K23 	 0.000000
+	param set MPC_LQR_K23 	 -0.000000
 	param set MPC_LQR_K24 	 1.639655
 	param set MPC_LQR_K25 	 -25.533444
-	param set MPC_LQR_K26 	 -0.000000
+	param set MPC_LQR_K26 	 0.000000
 	param set MPC_LQR_K27 	 4.863266
 	param set MPC_LQR_K28 	 -39.347374
-	param set MPC_LQR_K29 	 -0.000000
-	param set MPC_LQR_K31 	 0.000000
+	param set MPC_LQR_K29 	 0.000000
+	param set MPC_LQR_K31 	 -0.000000
 	param set MPC_LQR_K32 	 0.076521
 	param set MPC_LQR_K33 	 0.707107
 	param set MPC_LQR_K34 	 -15.713650
-	param set MPC_LQR_K35 	 0.000000
-	param set MPC_LQR_K36 	 -7.601918
+	param set MPC_LQR_K35 	 -0.000000
+	param set MPC_LQR_K36 	 -4.196419
 	param set MPC_LQR_K37 	 -36.260416
-	param set MPC_LQR_K38 	 0.000000
-	param set MPC_LQR_K39 	 -17.531768
+	param set MPC_LQR_K38 	 -0.000000
+	param set MPC_LQR_K39 	 -5.544032
 	param set MPC_LQR_K41 	 0.686741
 	param set MPC_LQR_K42 	 0.036730
 	param set MPC_LQR_K43 	 -0.000000
 	param set MPC_LQR_K44 	 -7.542552
 	param set MPC_LQR_K45 	 -4.499651
-	param set MPC_LQR_K46 	 15.837329
+	param set MPC_LQR_K46 	 8.742540
 	param set MPC_LQR_K47 	 -17.405000
 	param set MPC_LQR_K48 	 -9.653357
-	param set MPC_LQR_K49 	 36.524516
+	param set MPC_LQR_K49 	 11.550066
 	param set MPC_LQR_K51 	 0.168483
 	param set MPC_LQR_K52 	 0.701994
 	param set MPC_LQR_K53 	 0.000000
@@ -70,15 +70,15 @@ then
 	param set MPC_LQR_K57 	 4.863266
 	param set MPC_LQR_K58 	 39.347374
 	param set MPC_LQR_K59 	 -0.000000
-	param set MPC_LQR_K61 	 -0.000000
+	param set MPC_LQR_K61 	 0.000000
 	param set MPC_LQR_K62 	 -0.076521
 	param set MPC_LQR_K63 	 0.707107
 	param set MPC_LQR_K64 	 15.713650
-	param set MPC_LQR_K65 	 -0.000000
-	param set MPC_LQR_K66 	 7.601918
+	param set MPC_LQR_K65 	 0.000000
+	param set MPC_LQR_K66 	 4.196419
 	param set MPC_LQR_K67 	 36.260416
-	param set MPC_LQR_K68 	 -0.000000
-	param set MPC_LQR_K69 	 17.531768
+	param set MPC_LQR_K68 	 0.000000
+	param set MPC_LQR_K69 	 5.544032
 fi
 
 set MAV_TYPE 2
