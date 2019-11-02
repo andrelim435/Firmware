@@ -680,6 +680,15 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 	rates(1) -= _sensor_bias.gyro_y_bias;
 	rates(2) -= _sensor_bias.gyro_z_bias;
 
+	/* Convert body rate to euler rate */
+	Eulerf eq = Eulerf(Quatf(_v_att.q));
+	float data[9] = {1,	sinf(eq.phi())*tanf(eq.theta()), cosf(eq.phi())*tanf(eq.theta()),
+			0, 	cosf(eq.phi()), 		-sinf(eq.phi()),
+			0, 	sinf(eq.phi())/cosf(eq.theta()), cosf(eq.phi())/cosf(eq.theta())};
+	const SquareMatrix<float,3> E(data);
+
+	rates = E * rates;
+
 	/* apply low-pass filtering to the rates for D-term */
 	Vector3f rates_filtered(_lp_filters_d.apply(rates));
 
