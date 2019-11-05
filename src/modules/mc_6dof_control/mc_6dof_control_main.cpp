@@ -704,28 +704,28 @@ Multicopter6dofControl::convert_virtual_input()
 	 * This is the moore-penrose inverse of the rotor force to torque mapping
 	 */
 	Matrix<float,6,3> torque_to_rotor;
-	torque_to_rotor(0,0) = -2.368826;
+	torque_to_rotor(0,0) = 1.528662;
 	torque_to_rotor(0,1) = -2.500000;
-	torque_to_rotor(0,2) = -5.099214;
-	torque_to_rotor(1,0) = -1.262389;
-	torque_to_rotor(1,1) = 7.500000;
-	torque_to_rotor(1,2) = -0.984959;
-	torque_to_rotor(2,0) = -4.935054;
+	torque_to_rotor(0,2) = -3.250975;
+	torque_to_rotor(1,0) = 0.509554;
+	torque_to_rotor(1,1) = -7.500000;
+	torque_to_rotor(1,2) = 0.000000;
+	torque_to_rotor(2,0) = -3.184713;
 	torque_to_rotor(2,1) = 0.000000;
-	torque_to_rotor(2,2) = -2.290029;
-	torque_to_rotor(3,0) = 2.368826;
+	torque_to_rotor(2,2) = -1.560468;
+	torque_to_rotor(3,0) = -1.528662;
 	torque_to_rotor(3,1) = -2.500000;
-	torque_to_rotor(3,2) = 5.099214;
-	torque_to_rotor(4,0) = -1.262389;
-	torque_to_rotor(4,1) = -7.500000;
-	torque_to_rotor(4,2) = -0.984959;
-	torque_to_rotor(5,0) = 4.935054;
+	torque_to_rotor(3,2) = 3.250975;
+	torque_to_rotor(4,0) = 0.509554;
+	torque_to_rotor(4,1) = 7.500000;
+	torque_to_rotor(4,2) = -0.000000;
+	torque_to_rotor(5,0) = 3.184713;
 	torque_to_rotor(5,1) = -0.000000;
-	torque_to_rotor(5,2) = 2.290029;
+	torque_to_rotor(5,2) = 1.560468;
 
 	Vector3f _desired_torque = _att_control;
 	_desired_torque(0) *= 0.0197563f;
-	_desired_torque(1) *= 0.01458929f + 0.0028f;
+	_desired_torque(1) *= 0.01458929f;
 	_desired_torque(2) *= 0.01477f;
 	// _desired_torque(1) = 0.f;
 	// _desired_torque(2) = 0.f;
