@@ -226,6 +226,8 @@ private:
 	float _man_yaw_sp{0.f};				/**< current yaw setpoint in manual mode */
 	bool _gear_state_initialized{false};		/**< true if the gear state has been initialized */
 
+	matrix::Matrix<float,6,3> _torque_to_rotor;	/**< mapping from desired torque to rotor forces */
+
 	matrix::Vector3f _p_control_att_0;		/**< partial control (attitude) for rotor 0 */
 	matrix::Vector3f _p_control_att_1;		/**< partial control (attitude) for rotor 1 */
 
