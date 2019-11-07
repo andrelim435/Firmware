@@ -135,22 +135,22 @@ Multicopter6dofControl::Multicopter6dofControl() :
 	/* Torque to rotor force matrix,
 	 * This is the moore-penrose inverse of the rotor force to torque mapping
 	 */
-	_torque_to_rotor(0,0) = 1.528662;
-	_torque_to_rotor(0,1) = -2.500000;
+	_torque_to_rotor(0,0) = 1.560468;
+	_torque_to_rotor(0,1) = -0.000000;
 	_torque_to_rotor(0,2) = -3.250975;
-	_torque_to_rotor(1,0) = 0.509554;
-	_torque_to_rotor(1,1) = -7.500000;
-	_torque_to_rotor(1,2) = 0.000000;
-	_torque_to_rotor(2,0) = -3.184713;
+	_torque_to_rotor(1,0) = 0.000000;
+	_torque_to_rotor(1,1) = -8.333333;
+	_torque_to_rotor(1,2) = -0.000000;
+	_torque_to_rotor(2,0) = -3.250975;
 	_torque_to_rotor(2,1) = 0.000000;
 	_torque_to_rotor(2,2) = -1.560468;
-	_torque_to_rotor(3,0) = -1.528662;
-	_torque_to_rotor(3,1) = -2.500000;
+	_torque_to_rotor(3,0) = -1.560468;
+	_torque_to_rotor(3,1) = 0.000000;
 	_torque_to_rotor(3,2) = 3.250975;
-	_torque_to_rotor(4,0) = 0.509554;
-	_torque_to_rotor(4,1) = 7.500000;
+	_torque_to_rotor(4,0) = -0.000000;
+	_torque_to_rotor(4,1) = 8.333333;
 	_torque_to_rotor(4,2) = -0.000000;
-	_torque_to_rotor(5,0) = 3.184713;
+	_torque_to_rotor(5,0) = 3.250975;
 	_torque_to_rotor(5,1) = -0.000000;
 	_torque_to_rotor(5,2) = 1.560468;
 
@@ -723,9 +723,9 @@ void
 Multicopter6dofControl::convert_virtual_input()
 {
 	Vector3f _desired_torque = _att_control;
-	_desired_torque(0) *= 0.0197563f;
-	_desired_torque(1) *= 0.01458929f;
-	_desired_torque(2) *= 0.01477f;
+	// _desired_torque(0) /= 0.00018958f;
+	// _desired_torque(1) /= 0.0014306f;
+	// _desired_torque(2) /= 0.0013840f;
 
 	/* Calculate desired rotor forces */
 	const Vector<float,6> rotor_force = _torque_to_rotor * _desired_torque;
@@ -755,12 +755,12 @@ Multicopter6dofControl::convert_virtual_input()
 	 * 1: Beta (roll)
 	 * 2: Thrust
 	 */
-	_att_control_0(0) = asinf(_virtual_control_0(0)/_virtual_control_0(2)) / .75f;
-	_att_control_0(1) = -asinf(_virtual_control_0(1)/_virtual_control_0(2)) / .75f;
+	_att_control_0(0) = atan2f(_virtual_control_0(0), _virtual_control_0(2)) / .75f;
+	_att_control_0(1) = asinf(_virtual_control_0(1)) / .75f;
 	_att_control_0(2) = _virtual_control_0.norm() / _param_mpc_max_thrust.get();
 
-	_att_control_1(0) = asinf(_virtual_control_1(0)/_virtual_control_1(2)) / .75f;
-	_att_control_1(1) = -asinf(_virtual_control_1(1)/_virtual_control_1(2)) / .75f;
+	_att_control_1(0) = atan2f(_virtual_control_1(0), _virtual_control_1(2)) / .75f;
+	_att_control_1(1) = asinf(_virtual_control_1(1)) / .75f;
 	_att_control_1(2) = _virtual_control_1.norm() / _param_mpc_max_thrust.get();
 
 	/* For now do all control calculations in SI units (N,m,etc) then convert to normalised (-1 .. 1) range in the final step
