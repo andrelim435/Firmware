@@ -722,30 +722,9 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 void
 Multicopter6dofControl::convert_virtual_input()
 {
-	Vector3f _desired_torque = _att_control;
-	// Units: milli rad s-1 (For nicer numbers)
-	_desired_torque(0) *= 0.18958f;
-	_desired_torque(1) *= 1.4306f;
-	_desired_torque(2) *= 1.3840f;
-
-	/* Calculate desired rotor forces */
-	const Vector<float,6> rotor_force = _torque_to_rotor * _desired_torque;
-	// Delta_z is rotor 2 minus 1 because rotor force is NED. Desired thrust is calculated in the down z-axis
-	const float delta_z = rotor_force(2) - rotor_force(5);
-
-	_virtual_control_0(0) = rotor_force(0);
-	_virtual_control_0(1) = rotor_force(1);
-	_virtual_control_0(2) = _thrust_sp/2;
-
-	_virtual_control_1(0) = rotor_force(3);
-	_virtual_control_1(1) = rotor_force(4);
-	_virtual_control_1(2) = _thrust_sp/2;
-
-	if (delta_z > 0.f) {
-		_virtual_control_0(2) += delta_z;
-	} else {
-		_virtual_control_1(2) -= delta_z;
-	}
+	float delta_x = _att_control(0) * 0.5f + _att_control(2) * -1.0f;
+	float delta_y = _att_control(1) * -3.0f;
+	float delta_z = _att_control(0) * -1.0f + _att_control(2) * -0.5f;
 
 	/* _virtual_control is
 	 * 0: roll
@@ -756,21 +735,13 @@ Multicopter6dofControl::convert_virtual_input()
 	 * 1: Beta (roll)
 	 * 2: Thrust
 	 */
-	if (_thrust_sp < 0.1f) {
-		_att_control_0(0) = 0.f;
-		_att_control_0(1) = 0.f;
-		_att_control_1(0) = 0.f;
-		_att_control_1(1) = 0.f;
+	_att_control_0(0) = delta_x/2;
+	_att_control_0(1) = delta_y/2;
+	_att_control_0(2) = _thrust_sp + delta_z/2;
 
-	} else {
-		_att_control_0(0) = atan2f(_virtual_control_0(0), _virtual_control_0(2)) / .75f;
-		_att_control_0(1) = atan2f(_virtual_control_0(1), _virtual_control_0(2)/cosf(_att_control_0(0))) / .75f;
-
-		_att_control_1(0) = atan2f(_virtual_control_1(0), _virtual_control_1(2)) / .75f;
-		_att_control_1(1) = atan2f(_virtual_control_1(1), _virtual_control_1(2)/cosf(_att_control_1(0))) / .75f;
-	}
-	_att_control_0(2) = _virtual_control_0.norm() / _param_mpc_max_thrust.get();
-	_att_control_1(2) = _virtual_control_1.norm() / _param_mpc_max_thrust.get();
+	_att_control_1(0) = -delta_x/2;
+	_att_control_1(1) = -delta_y/2;
+	_att_control_1(2) = _thrust_sp - delta_z/2;
 
 	/* For now do all control calculations in SI units (N,m,etc) then convert to normalised (-1 .. 1) range in the final step
 	*  Consider doing all calculations normalised?
