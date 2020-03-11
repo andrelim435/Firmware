@@ -571,7 +571,69 @@ Multicopter6dofControl::control_attitude()
 	// physical thrust axis is the negative of body z axis
 	_thrust_sp = -_v_att_sp.thrust_body[2];
 
-	_rates_sp = _attitude_control.update(Quatf(_v_att.q), Quatf(_v_att_sp.q_d), _v_att_sp.yaw_sp_move_rate);
+	Quatf q = Quatf(_v_att.q);
+	// Should always be zero for now. Use this when adding full 6dof control to offboard mode
+	Quatf qd = Quatf(_v_att_sp.q_d);
+
+	// ensure input quaternions are exactly normalized because acosf(1.00001) == NaN
+	q.normalize();
+	qd.normalize();
+
+	// quaternion attitude control law, qe is rotation from q to qd
+	const Quatf qe = q.inversed() * qd;
+
+	// using sin(alpha/2) scaled rotation axis as attitude error (see quaternion definition by axis angle)
+	// also taking care of the antipodal unit quaternion ambiguity
+	// const Vector3f eq = 1.f * math::signNoZero(qe(0)) * qe.imag();
+	Vector3f eq = Eulerf(qe);
+
+	// /*	Set eq to only desired (no current att) */
+	// eq = Eulerf(qd);
+	// eq(2) = 0.f;
+
+	// /*	Remove certain channels for testing */
+	// eq = -Eulerf(q);
+	// eq(0) = 0.f;
+	// eq(1) = 0.f;
+	eq(2) = 0.f;
+
+	// /*	Quaternion to Euler formula from wikipedia */
+	// eq(0) = atan2f( 2*(qe(0)*qe(1) + qe(2)*qe(3)), 1 - 2*(qe(1)*qe(1) + qe(2)*qe(2)) );
+	// eq(1) = asinf( 2*(qe(0)*qe(2) + qe(3)*qe(1)) );
+	// eq(2) = atan2f( 2*(qe(0)*qe(3) + qe(1)*qe(2)), 1 - 2*(qe(2)*qe(2) + qe(3)*qe(3)) );
+
+
+	// Calculate partial LQR output
+	// Rotor 1: phi,theta,psi
+	_p_control_att_0(0) = _param_mpc_lqr_k410.get() * eq(0) + _param_mpc_lqr_k111.get() * eq(1) + _param_mpc_lqr_k112.get() * eq(2);
+	_p_control_att_0(1) = _param_mpc_lqr_k510.get() * eq(0) + _param_mpc_lqr_k211.get() * eq(1) + _param_mpc_lqr_k212.get() * eq(2);
+	_p_control_att_0(2) = _param_mpc_lqr_k610.get() * eq(0) + _param_mpc_lqr_k311.get() * eq(1) + _param_mpc_lqr_k312.get() * eq(2);
+	// Rotor 2: phi,theta,psi
+	_p_control_att_1(0) = _param_mpc_lqr_k110.get() * eq(0) + _param_mpc_lqr_k411.get() * eq(1) + _param_mpc_lqr_k412.get() * eq(2);
+	_p_control_att_1(1) = _param_mpc_lqr_k210.get() * eq(0) + _param_mpc_lqr_k511.get() * eq(1) + _param_mpc_lqr_k512.get() * eq(2);
+	_p_control_att_1(2) = _param_mpc_lqr_k310.get() * eq(0) + _param_mpc_lqr_k611.get() * eq(1) + _param_mpc_lqr_k612.get() * eq(2);
+
+	/* Add gravity vector */
+	// const Vector3f gravity_body_frame = q.conjugate_inversed(Vector3f(0,0,0.37));
+	// _p_control_att_0 += gravity_body_frame;
+	// _p_control_att_1 += gravity_body_frame;
+	_p_control_att_0 += Vector3f(0,0,0.37);
+	_p_control_att_1 += Vector3f(0,0,0.37);
+
+	// // TESTING
+	// Quatf qd = Quatf(_v_att_sp.q_d);
+	// Eulerf ed = Eulerf(qd.inversed());
+
+	// _thrust_sp = _thrust_sp * _param_mpc_max_thrust.get();
+
+	// // Rotor 1: phi,theta,psi
+	// _p_control_att_0(0) = _thrust_sp * sin(ed.phi());
+	// _p_control_att_0(1) = _thrust_sp * sin(ed.theta());
+	// _p_control_att_0(2) += _thrust_sp * _param_mpc_max_thrust.get();
+	// // Rotor 2: phi,theta,psi
+	// _p_control_att_1(0) = _thrust_sp * sin(ed.phi());
+	// _p_control_att_1(1) = _thrust_sp * sin(ed.theta());
+	// _p_control_att_1(2) += _thrust_sp * _param_mpc_max_thrust.get();
 }
 
 /*
@@ -640,20 +702,26 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 	rates(1) -= _sensor_bias.gyro_y_bias;
 	rates(2) -= _sensor_bias.gyro_z_bias;
 
-	Vector3f rates_p_scaled = _rate_p.emult(pid_attenuations(_param_mc_tpa_break_p.get(), _param_mc_tpa_rate_p.get()));
-	Vector3f rates_i_scaled = _rate_i.emult(pid_attenuations(_param_mc_tpa_break_i.get(), _param_mc_tpa_rate_i.get()));
-	Vector3f rates_d_scaled = _rate_d.emult(pid_attenuations(_param_mc_tpa_break_d.get(), _param_mc_tpa_rate_d.get()));
+	/* Convert body rate to euler rate */
+	Eulerf eq = Eulerf(Quatf(_v_att.q));
+	float data[9] = {1,	sinf(eq.phi())*tanf(eq.theta()), cosf(eq.phi())*tanf(eq.theta()),
+			0, 	cosf(eq.phi()), 		-sinf(eq.phi()),
+			0, 	sinf(eq.phi())/cosf(eq.theta()), cosf(eq.phi())/cosf(eq.theta())};
+	const SquareMatrix<float,3> E(data);
 
-	/* angular rates error */
-	Vector3f rates_err = _rates_sp - rates;
+	rates = E * rates;
 
 	/* apply low-pass filtering to the rates for D-term */
 	Vector3f rates_filtered(_lp_filters_d.apply(rates));
 
-	_att_control = rates_p_scaled.emult(rates_err) +
-		       _rates_int -
-		       rates_d_scaled.emult(rates_filtered - _rates_prev_filtered) / dt +
-		       _rate_ff.emult(_rates_sp);
+	/* angular rates error */
+	// Should I accept rate sp for offboard control?
+	Vector3f rates_err = rates/5;
+	// rates_err(0) = 0.f;
+	// rates_err(1) = 0.f;
+	rates_err(1) *= 1/2;
+	rates_err(2) = 0.f;
+	// rates_err(2) *= -2;
 
 	_rates_prev = rates;
 	_rates_prev_filtered = rates_filtered;
@@ -667,49 +735,26 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 				((i == AXIS_INDEX_PITCH) && _saturation_status.flags.pitch_pos) ||
 				((i == AXIS_INDEX_YAW) && _saturation_status.flags.yaw_pos);
 
-			// Check for negative control saturation
-			bool negative_saturation =
-				((i == AXIS_INDEX_ROLL) && _saturation_status.flags.roll_neg) ||
-				((i == AXIS_INDEX_PITCH) && _saturation_status.flags.pitch_neg) ||
-				((i == AXIS_INDEX_YAW) && _saturation_status.flags.yaw_neg);
+	// // TESTING
+	// _virtual_control_0(0) = _p_control_att_0(0) + _partial_controls.control[0];
+	// _virtual_control_0(1) = _p_control_att_0(1) + _partial_controls.control[1];
+	// _virtual_control_0(2) = _p_control_att_0(2) + _partial_controls.control[2];
+	// _virtual_control_1(0) = _p_control_att_1(0) + _partial_controls.control[3];
+	// _virtual_control_1(1) = _p_control_att_1(1) + _partial_controls.control[4];
+	// _virtual_control_1(2) = _p_control_att_1(2) + _partial_controls.control[5];
 
-			// prevent further positive control saturation
-			if (positive_saturation) {
-				rates_err(i) = math::min(rates_err(i), 0.0f);
-
-			}
-
-			// prevent further negative control saturation
-			if (negative_saturation) {
-				rates_err(i) = math::max(rates_err(i), 0.0f);
-
-			}
-
-			// I term factor: reduce the I gain with increasing rate error.
-			// This counteracts a non-linear effect where the integral builds up quickly upon a large setpoint
-			// change (noticeable in a bounce-back effect after a flip).
-			// The formula leads to a gradual decrease w/o steps, while only affecting the cases where it should:
-			// with the parameter set to 400 degrees, up to 100 deg rate error, i_factor is almost 1 (having no effect),
-			// and up to 200 deg error leads to <25% reduction of I.
-			float i_factor = rates_err(i) / math::radians(400.f);
-			i_factor = math::max(0.0f, 1.f - i_factor * i_factor);
-
-			// Perform the integration using a first order method and do not propagate the result if out of range or invalid
-			float rate_i = _rates_int(i) + i_factor * rates_i_scaled(i) * rates_err(i) * dt;
-
-			if (PX4_ISFINITE(rate_i) && rate_i > -_rate_int_lim(i) && rate_i < _rate_int_lim(i)) {
-				_rates_int(i) = rate_i;
-
-			}
-		}
+	/* Check for negative thrust
+	 * Correct by setting negative thrust to 0.1N and adding the difference to the other rotor
+	 */
+	if (_virtual_control_0(2) < 0.f) {
+		_virtual_control_1(2) += 0.1f - _virtual_control_0(2);
+		_virtual_control_0(2) = 0.1f;
+	} else if (_virtual_control_1(2) < 0.f) {
+		_virtual_control_0(2) += 0.1f - _virtual_control_1(2);
+		_virtual_control_1(2) = 0.1f;
 	}
 
-	/* explicitly limit the integrator state */
-	for (int i = AXIS_INDEX_ROLL; i < AXIS_COUNT; i++) {
-		_rates_int(i) = math::constrain(_rates_int(i), -_rate_int_lim(i), _rate_int_lim(i));
-
-	}
-
+	// Convert virtual (Fx/y/z) control input to actual (alpha/beta/T) input
 	convert_virtual_input();
 
 }
@@ -722,46 +767,13 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 void
 Multicopter6dofControl::convert_virtual_input()
 {
-	Vector3f _desired_torque = _att_control;
-	// _desired_torque(0) /= 0.00018958f;
-	// _desired_torque(1) /= 0.0014306f;
-	// _desired_torque(2) /= 0.0013840f;
-
-	/* Calculate desired rotor forces */
-	const Vector<float,6> rotor_force = _torque_to_rotor * _desired_torque;
-	// Delta_z is rotor 2 minus 1 because rotor force is NED. Desired thrust is calculated in the down z-axis
-	const float delta_z = rotor_force(2) - rotor_force(5);
-
-	_virtual_control_0(0) = rotor_force(0);
-	_virtual_control_0(1) = rotor_force(1);
-	_virtual_control_0(2) = _thrust_sp/2;
-
-	_virtual_control_1(0) = rotor_force(3);
-	_virtual_control_1(1) = rotor_force(4);
-	_virtual_control_1(2) = _thrust_sp/2;
-
-	if (delta_z > 0.f) {
-		_virtual_control_0(2) += delta_z;
-	} else {
-		_virtual_control_1(2) -= delta_z;
-	}
-
-	/* _virtual_control is
-	 * 0: roll
-	 * 1: pitch
-	 * 2: yaw
-	 * _att_control is
-	 * 0: Alpha (pitch)
-	 * 1: Beta (roll)
-	 * 2: Thrust
-	 */
-	_att_control_0(0) = atan2f(_virtual_control_0(0), _virtual_control_0(2)) / .75f;
-	_att_control_0(1) = atan2f(_virtual_control_0(1), _virtual_control_0(2)/cosf(_att_control_0(0))) / .75f;
-
-	_att_control_1(0) = atan2f(_virtual_control_1(0), _virtual_control_1(2)) / .75f;
-	_att_control_1(1) = atan2f(_virtual_control_1(1), _virtual_control_1(2)/cosf(_att_control_1(0))) / .75f;
-
+	// Extract euler from rotation matrix
+	_att_control_0(1) = -atan2f(_virtual_control_0(1), _virtual_control_0(2)) / 0.75f;
+	_att_control_0(0) = atan2f(_virtual_control_0(0), _virtual_control_0(2)/cosf(_att_control_0(1))) / 0.75f;
 	_att_control_0(2) = _virtual_control_0.norm() / _param_mpc_max_thrust.get();
+
+	_att_control_1(1) = -atan2f(_virtual_control_1(1), _virtual_control_1(2)) / 0.75f;
+	_att_control_1(0) = atan2f(_virtual_control_1(0), _virtual_control_1(2)/cosf(_att_control_1(1))) / 0.75f;
 	_att_control_1(2) = _virtual_control_1.norm() / _param_mpc_max_thrust.get();
 
 	/* For now do all control calculations in SI units (N,m,etc) then convert to normalised (-1 .. 1) range in the final step
