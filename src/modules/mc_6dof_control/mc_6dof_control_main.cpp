@@ -135,24 +135,24 @@ Multicopter6dofControl::Multicopter6dofControl() :
 	/* Torque to rotor force matrix,
 	 * This is the moore-penrose inverse of the rotor force to torque mapping
 	 */
-	_torque_to_rotor(0,0) = 1.560468;
+	_torque_to_rotor(0,0) = 0.000296;
 	_torque_to_rotor(0,1) = -0.000000;
-	_torque_to_rotor(0,2) = -3.250975;
-	_torque_to_rotor(1,0) = 0.000000;
-	_torque_to_rotor(1,1) = -8.333333;
-	_torque_to_rotor(1,2) = -0.000000;
-	_torque_to_rotor(2,0) = -3.250975;
-	_torque_to_rotor(2,1) = 0.000000;
-	_torque_to_rotor(2,2) = -1.560468;
-	_torque_to_rotor(3,0) = -1.560468;
-	_torque_to_rotor(3,1) = 0.000000;
-	_torque_to_rotor(3,2) = 3.250975;
+	_torque_to_rotor(0,2) = -0.004499;
+	_torque_to_rotor(1,0) = -0.000000;
+	_torque_to_rotor(1,1) = -0.011922;
+	_torque_to_rotor(1,2) = 0.000000;
+	_torque_to_rotor(2,0) = -0.000616;
+	_torque_to_rotor(2,1) = -0.000000;
+	_torque_to_rotor(2,2) = -0.002160;
+	_torque_to_rotor(3,0) = -0.000296;
+	_torque_to_rotor(3,1) = -0.000000;
+	_torque_to_rotor(3,2) = 0.004499;
 	_torque_to_rotor(4,0) = -0.000000;
-	_torque_to_rotor(4,1) = 8.333333;
+	_torque_to_rotor(4,1) = 0.011922;
 	_torque_to_rotor(4,2) = -0.000000;
-	_torque_to_rotor(5,0) = 3.250975;
+	_torque_to_rotor(5,0) = 0.000616;
 	_torque_to_rotor(5,1) = -0.000000;
-	_torque_to_rotor(5,2) = 1.560468;
+	_torque_to_rotor(5,2) = 0.002160;
 
 	parameters_updated();
 }
@@ -723,10 +723,9 @@ void
 Multicopter6dofControl::convert_virtual_input()
 {
 	Vector3f _desired_torque = _att_control;
-	// Units: milli rad s-1 (For nicer numbers)
-	_desired_torque(0) *= 0.18958f;
-	_desired_torque(1) *= 1.4306f;
-	_desired_torque(2) *= 1.3840f;
+	// _desired_torque(0) /= 0.00018958f;
+	// _desired_torque(1) /= 0.0014306f;
+	// _desired_torque(2) /= 0.0013840f;
 
 	/* Calculate desired rotor forces */
 	const Vector<float,6> rotor_force = _torque_to_rotor * _desired_torque;
@@ -756,25 +755,26 @@ Multicopter6dofControl::convert_virtual_input()
 	 * 1: Beta (roll)
 	 * 2: Thrust
 	 */
-	if (_thrust_sp < 0.1f) {
-		_att_control_0(0) = 0.f;
-		_att_control_0(1) = 0.f;
-		_att_control_1(0) = 0.f;
-		_att_control_1(1) = 0.f;
+	_att_control_0(0) = atan2f(_virtual_control_0(0), _virtual_control_0(2)) / .75f;
+	_att_control_0(1) = atan2f(_virtual_control_0(1), _virtual_control_0(2)/cosf(_att_control_0(0))) / .75f;
 
-	} else {
-		_att_control_0(0) = atan2f(_virtual_control_0(0), _virtual_control_0(2)) / .75f;
-		_att_control_0(1) = atan2f(_virtual_control_0(1), _virtual_control_0(2)/cosf(_att_control_0(0))) / .75f;
+	_att_control_1(0) = atan2f(_virtual_control_1(0), _virtual_control_1(2)) / .75f;
+	_att_control_1(1) = atan2f(_virtual_control_1(1), _virtual_control_1(2)/cosf(_att_control_1(0))) / .75f;
 
-		_att_control_1(0) = atan2f(_virtual_control_1(0), _virtual_control_1(2)) / .75f;
-		_att_control_1(1) = atan2f(_virtual_control_1(1), _virtual_control_1(2)/cosf(_att_control_1(0))) / .75f;
-	}
 	_att_control_0(2) = _virtual_control_0.norm() / _param_mpc_max_thrust.get();
 	_att_control_1(2) = _virtual_control_1.norm() / _param_mpc_max_thrust.get();
 
 	/* For now do all control calculations in SI units (N,m,etc) then convert to normalised (-1 .. 1) range in the final step
 	*  Consider doing all calculations normalised?
 	*/
+
+	// Eulerf eq = Eulerf(Quatf(_v_att_sp.q_d));
+	// _att_control_0(0) = eq.theta();
+	// _att_control_0(1) = eq.phi();
+	// _att_control_0(2) = _thrust_sp;
+	// _att_control_1(0) = eq.theta();
+	// _att_control_1(1) = eq.phi();
+	// _att_control_1(2) = _thrust_sp;
 
 	// Calculate thrust (channel 3) for arming/disarming safety logic
 	_att_control_thrust = (_att_control_0(2)+_att_control_1(2)) / 2;

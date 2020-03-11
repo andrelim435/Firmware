@@ -64,3 +64,5 @@ posix-configs/SITL/init/test/*_generated
 *.gcov
 .coverage
 .coverage.*
+
+.vscode/
