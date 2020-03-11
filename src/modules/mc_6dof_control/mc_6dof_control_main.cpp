@@ -580,7 +580,7 @@ Multicopter6dofControl::control_attitude()
 	qd.normalize();
 
 	// quaternion attitude control law, qe is rotation from q to qd
-	const Quatf qe = q.inversed() * qd;
+	const Quatf qe = qd.inversed() * q;
 
 	// using sin(alpha/2) scaled rotation axis as attitude error (see quaternion definition by axis angle)
 	// also taking care of the antipodal unit quaternion ambiguity
@@ -707,11 +707,11 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 
 	/* angular rates error */
 	// Should I accept rate sp for offboard control?
-	Vector3f rates_err = rates/5;
+	Vector3f rates_err = rates;
 	// rates_err(0) = 0.f;
 	// rates_err(1) = 0.f;
-	rates_err(1) *= 1/2;
-	rates_err(2) = 0.f;
+	// rates_err(1) *= 1/2;
+	// rates_err(2) = 0.f;
 	// rates_err(2) *= -2;
 
 	_rates_prev = rates;
