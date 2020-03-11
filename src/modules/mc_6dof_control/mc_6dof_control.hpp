@@ -228,8 +228,7 @@ private:
 
 	matrix::Matrix<float,6,3> _torque_to_rotor;	/**< mapping from desired torque to rotor forces */
 
-	matrix::Vector3f _p_control_att_0;		/**< partial control (attitude) for rotor 0 */
-	matrix::Vector3f _p_control_att_1;		/**< partial control (attitude) for rotor 1 */
+	matrix::Vector3f _att_err;			/**< attitude error vector */
 
 	matrix::Vector3f _virtual_control_0;		/**< Virtual control in Fx/Fy/Fz for rotor 0 */
 	matrix::Vector3f _virtual_control_1;		/**< Virtual control in Fx/Fy/Fz for rotor 0 */

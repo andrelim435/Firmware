@@ -119,8 +119,7 @@ Multicopter6dofControl::Multicopter6dofControl() :
 	_att_control_0.zero();
 	_att_control_1.zero();
 	_att_control_thrust = 0.0f;
-	_p_control_att_0.zero();
-	_p_control_att_1.zero();
+	_att_err.zero();
 	_virtual_control_0.zero();
 	_virtual_control_1.zero();
 
@@ -595,7 +594,7 @@ Multicopter6dofControl::control_attitude()
 	// eq = -Eulerf(q);
 	// eq(0) = 0.f;
 	// eq(1) = 0.f;
-	eq(2) = 0.f;
+	// eq(2) = 0.f;
 
 	// /*	Quaternion to Euler formula from wikipedia */
 	// eq(0) = atan2f( 2*(qe(0)*qe(1) + qe(2)*qe(3)), 1 - 2*(qe(1)*qe(1) + qe(2)*qe(2)) );
@@ -603,37 +602,16 @@ Multicopter6dofControl::control_attitude()
 	// eq(2) = atan2f( 2*(qe(0)*qe(3) + qe(1)*qe(2)), 1 - 2*(qe(2)*qe(2) + qe(3)*qe(3)) );
 
 
-	// Calculate partial LQR output
-	// Rotor 1: phi,theta,psi
-	_p_control_att_0(0) = _param_mpc_lqr_k410.get() * eq(0) + _param_mpc_lqr_k111.get() * eq(1) + _param_mpc_lqr_k112.get() * eq(2);
-	_p_control_att_0(1) = _param_mpc_lqr_k510.get() * eq(0) + _param_mpc_lqr_k211.get() * eq(1) + _param_mpc_lqr_k212.get() * eq(2);
-	_p_control_att_0(2) = _param_mpc_lqr_k610.get() * eq(0) + _param_mpc_lqr_k311.get() * eq(1) + _param_mpc_lqr_k312.get() * eq(2);
-	// Rotor 2: phi,theta,psi
-	_p_control_att_1(0) = _param_mpc_lqr_k110.get() * eq(0) + _param_mpc_lqr_k411.get() * eq(1) + _param_mpc_lqr_k412.get() * eq(2);
-	_p_control_att_1(1) = _param_mpc_lqr_k210.get() * eq(0) + _param_mpc_lqr_k511.get() * eq(1) + _param_mpc_lqr_k512.get() * eq(2);
-	_p_control_att_1(2) = _param_mpc_lqr_k310.get() * eq(0) + _param_mpc_lqr_k611.get() * eq(1) + _param_mpc_lqr_k612.get() * eq(2);
+	// Angle and Rate in body frame
+	// Angle
+	_att_err(0) = eq(0);
+	_att_err(1) = eq(1);
+	_att_err(2) = eq(2);
 
 	/* Add gravity vector */
 	// const Vector3f gravity_body_frame = q.conjugate_inversed(Vector3f(0,0,0.37));
 	// _p_control_att_0 += gravity_body_frame;
 	// _p_control_att_1 += gravity_body_frame;
-	_p_control_att_0 += Vector3f(0,0,0.37);
-	_p_control_att_1 += Vector3f(0,0,0.37);
-
-	// // TESTING
-	// Quatf qd = Quatf(_v_att_sp.q_d);
-	// Eulerf ed = Eulerf(qd.inversed());
-
-	// _thrust_sp = _thrust_sp * _param_mpc_max_thrust.get();
-
-	// // Rotor 1: phi,theta,psi
-	// _p_control_att_0(0) = _thrust_sp * sin(ed.phi());
-	// _p_control_att_0(1) = _thrust_sp * sin(ed.theta());
-	// _p_control_att_0(2) += _thrust_sp * _param_mpc_max_thrust.get();
-	// // Rotor 2: phi,theta,psi
-	// _p_control_att_1(0) = _thrust_sp * sin(ed.phi());
-	// _p_control_att_1(1) = _thrust_sp * sin(ed.theta());
-	// _p_control_att_1(2) += _thrust_sp * _param_mpc_max_thrust.get();
 }
 
 /*
