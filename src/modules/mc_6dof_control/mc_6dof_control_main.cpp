@@ -162,8 +162,8 @@ Multicopter6dofControl::Multicopter6dofControl() :
 	_S2(0,0) = 1.000000; _S2(0,1) = 0.000000; _S2(0,2) = 0.000000; _S2(0,3) = 0.000000; _S2(0,4) = 0.000000; _S2(0,5) = 0.000000; _S2(1,0) = 0.000000; _S2(1,1) = 1.000000; _S2(1,2) = 0.000000; _S2(1,3) = 0.000000; _S2(1,4) = 0.000000; _S2(1,5) = 0.000000; _S2(2,0) = 0.000000; _S2(2,1) = 0.000000; _S2(2,2) = 1.000000; _S2(2,3) = 0.000000; _S2(2,4) = 0.000000; _S2(2,5) = 0.000000; _S2(3,0) = 0.000000; _S2(3,1) = 0.000000; _S2(3,2) = 0.000000; _S2(3,3) = 1.000000; _S2(3,4) = 0.000000; _S2(3,5) = 0.000000; _S2(4,0) = 0.000000; _S2(4,1) = 0.000000; _S2(4,2) = 0.000000; _S2(4,3) = 0.000000; _S2(4,4) = 1.000000; _S2(4,5) = 0.000000; _S2(5,0) = 0.000000; _S2(5,1) = 0.000000; _S2(5,2) = 0.000000; _S2(5,3) = 0.000000; _S2(5,4) = 0.000000; _S2(5,5) = 1.000000;
 	_P2(0,0) = 0.500000; _P2(0,1) = 0.000000; _P2(0,2) = 0.000000; _P2(0,3) = 0.000000; _P2(0,4) = 0.000000; _P2(0,5) = 0.000000; _P2(1,0) = 0.000000; _P2(1,1) = 0.500000; _P2(1,2) = 0.000000; _P2(1,3) = 0.000000; _P2(1,4) = 0.000000; _P2(1,5) = 0.000000; _P2(2,0) = 0.000000; _P2(2,1) = 0.000000; _P2(2,2) = 0.500000; _P2(2,3) = 0.000000; _P2(2,4) = 0.000000; _P2(2,5) = 0.000000; _P2(3,0) = 0.000000; _P2(3,1) = 0.000000; _P2(3,2) = 0.000000; _P2(3,3) = 0.333333; _P2(3,4) = 0.000000; _P2(3,5) = 0.000000; _P2(4,0) = 0.000000; _P2(4,1) = 0.000000; _P2(4,2) = 0.000000; _P2(4,3) = 0.000000; _P2(4,4) = 0.333333; _P2(4,5) = 0.000000; _P2(5,0) = 0.000000; _P2(5,1) = 0.000000; _P2(5,2) = 0.000000; _P2(5,3) = 0.000000; _P2(5,4) = 0.000000; _P2(5,5) = 0.333333;
 
-	_S2_norm = 2.45f;
-	_M_norm = 37.63f;
+	_S2_norm = 1.f;
+	_M_norm = 25.f;
 	_k1 = 1.0f; _k2 = 1.0f; _k3 = 0.1f; _alpha = 0.0f;
 	_gamma = 1.0f;
 	parameters_updated();
@@ -740,8 +740,7 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 	Vector<float,6> u_l = -_invB2 * (_bA21*x1 + (_M-_phi)*s);
 
 	// Calculate rho
-	float x_norm = sqrt(x1.norm_squared() + x2.norm_squared());
-	float rho = _S2_norm * (_M_norm * (_k1*x_norm + _k2) + _k3*u_l.norm() + _alpha) + _gamma;
+	float rho = _S2_norm * (_M_norm * (_k1*x1.norm() + _k2) + _k3*u_l.norm() + _alpha) + _gamma;
 
 	// Combine Linear & Nonlinear law
 	Vector<float,6> P2_s = _P2*s;
@@ -767,26 +766,45 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 void
 Multicopter6dofControl::convert_virtual_input()
 {
-	// Extract euler from rotation matrix
-	_att_control_0(1) = -atan2f(_virtual_control_0(1), _virtual_control_0(2)) / 0.75f;
-	_att_control_0(0) = atan2f(_virtual_control_0(0), _virtual_control_0(2)/cosf(_att_control_0(1))) / 0.75f;
-	_att_control_0(2) = _virtual_control_0.norm() / _param_mpc_max_thrust.get();
+	// Add gravity compensation
+	Vector3f fg(0, 0, -9.81*0.35);
+	fg = q.conjugate_inversed(fg);
 
-	_att_control_1(1) = -atan2f(_virtual_control_1(1), _virtual_control_1(2)) / 0.75f;
-	_att_control_1(0) = atan2f(_virtual_control_1(0), _virtual_control_1(2)/cosf(_att_control_1(1))) / 0.75f;
-	_att_control_1(2) = _virtual_control_1.norm() / _param_mpc_max_thrust.get();
+	// Saturate while preserving direction
+	if (_virtual_control_0(2) > -fg(2)) {
+		float scale_factor = -fg(2) / _virtual_control_0(2);
+		_virtual_control_0 *= scale_factor;
+	}
+	if (_virtual_control_1(2) > -fg(2)) {
+		float scale_factor = -fg(2) / _virtual_control_1(2);
+		_virtual_control_1  *= scale_factor;
+	}
+
+	_virtual_control_0 += fg;
+	_virtual_control_1 += fg;
+
+	/* MATLAB code */
+	// // Convert to servo angles
+	// a1 = atan2(-F1(0), -F1(2));             % a = atan2(Fx, Fz)
+	// b1 = atan2(F1(1), -F1(2)/cos(a1));
+	// T1 = -F1(2)/cos(a1)/cos(b1);             % T = Fz / cos(a) / cos(b)
+
+	// a2 = atan2(-F2(0), -F2(2));             % a = atan2(Fx, Fz)
+	// b2 = atan2(F2(1), -F2(2)/cos(a2));  % b = atan2(Fy, Fz/cos(a))
+	// T2 = -F2(2)/cos(a2)/cos(b2);             % T = Fz / cos(a) / cos(b)
+
+	// Extract euler from rotation matrix
+	_att_control_0(0) = atan2f(-_virtual_control_0(0), _virtual_control_0(2)) /1.5f;
+	_att_control_0(1) = atan2f(_virtual_control_0(1), -_virtual_control_0(2)/cosf(_att_control_0(0))) /1.5f;
+	_att_control_0(2) = -_virtual_control_0(2) / cos(_att_control_0(0)) / cos(_att_control_0(1)) / _param_mpc_max_thrust.get();
+
+	_att_control_1(0) = atan2f(-_virtual_control_0(0), _virtual_control_0(2)) /1.5f;
+	_att_control_1(1) = atan2f(_virtual_control_0(1), -_virtual_control_0(2)/cosf(_att_control_1(0))) /1.5f;
+	_att_control_1(2) = -_virtual_control_0(2) / cos(_att_control_1(0)) / cos(_att_control_1(1)) / _param_mpc_max_thrust.get();
 
 	/* For now do all control calculations in SI units (N,m,etc) then convert to normalised (-1 .. 1) range in the final step
 	*  Consider doing all calculations normalised?
 	*/
-
-	// Eulerf eq = Eulerf(Quatf(_v_att_sp.q_d));
-	// _att_control_0(0) = eq.theta();
-	// _att_control_0(1) = eq.phi();
-	// _att_control_0(2) = _thrust_sp;
-	// _att_control_1(0) = eq.theta();
-	// _att_control_1(1) = eq.phi();
-	// _att_control_1(2) = _thrust_sp;
 
 	// Calculate thrust (channel 3) for arming/disarming safety logic
 	_att_control_thrust = (_att_control_0(2)+_att_control_1(2)) / 2;
