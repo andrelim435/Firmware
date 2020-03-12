@@ -583,7 +583,7 @@ Multicopter6dofControl::control_attitude()
 	// physical thrust axis is the negative of body z axis
 	_thrust_sp = -_v_att_sp.thrust_body[2];
 
-	Quatf q = Quatf(_v_att.q);
+	q = Quatf(_v_att.q);
 	// Should always be zero for now. Use this when adding full 6dof control to offboard mode
 	Quatf qd = Quatf(_v_att_sp.q_d);
 
@@ -722,11 +722,15 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 	 * u = -inv(B2)*[-M^2 x1 + (M-phi)(S1 x1 + x2) + rho (P2 s)/(||P2 s||)]
 	 */
 	// Form x1: [px py pz phi theta psi]
-	float x1data[6] = {_partial_controls.control[0], _partial_controls.control[1], _partial_controls.control[2], _att_err(0), _att_err(1), _att_err(2)};
+	Vector3f pos(_partial_controls.control[0], _partial_controls.control[1], _partial_controls.control[2]);
+	pos = q.conjugate_inversed(pos);
+	float x1data[6] = {pos(0), pos(1), pos(2), _att_err(0), _att_err(1), _att_err(2)};
 	Vector<float,6> x1(x1data);
 
 	// Form x2: [vx vy vz r p y]
-	float x2data[6] = {_partial_controls.control[3], _partial_controls.control[4], _partial_controls.control[5], rates_err(0), rates_err(1), rates_err(2)};
+	Vector3f vel(_partial_controls.control[3], _partial_controls.control[4], _partial_controls.control[5]);
+	vel = q.conjugate_inversed(vel);
+	float x2data[6] = {vel(0), vel(1), vel(2), rates_err(0), rates_err(1), rates_err(2)};
 	Vector<float,6> x2(x2data);
 
 	// Sliding variable s
@@ -749,17 +753,6 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 	_virtual_control_1(0) = u(3);
 	_virtual_control_1(1) = u(4);
 	_virtual_control_1(2) = u(5);
-
-	/* Check for negative thrust
-	 * Correct by setting negative thrust to 0.1N and adding the difference to the other rotor
-	 */
-	if (_virtual_control_0(2) < 0.f) {
-		_virtual_control_1(2) += 0.1f - _virtual_control_0(2);
-		_virtual_control_0(2) = 0.1f;
-	} else if (_virtual_control_1(2) < 0.f) {
-		_virtual_control_0(2) += 0.1f - _virtual_control_1(2);
-		_virtual_control_1(2) = 0.1f;
-	}
 
 	// Convert virtual (Fx/y/z) control input to actual (alpha/beta/T) input
 	convert_virtual_input();

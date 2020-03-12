@@ -239,6 +239,7 @@ private:
 	float _M_norm;
 	float _k1, _k2, _k3, _alpha;
 	float _gamma;
+	matrix::Quatf q;
 
 	matrix::Vector3f _att_err;			/**< attitude error vector */
 
