@@ -153,6 +153,19 @@ Multicopter6dofControl::Multicopter6dofControl() :
 	_torque_to_rotor(5,1) = -0.000000;
 	_torque_to_rotor(5,2) = 0.002160;
 
+	/* Hardcode SMC parameters for now */
+	_invB2(0,0) = 0.350000; _invB2(0,1) = 0.000000; _invB2(0,2) = -0.000000; _invB2(0,3) = 0.000081; _invB2(0,4) = 0.000000; _invB2(0,5) = -0.008580; _invB2(1,0) = 0.000000; _invB2(1,1) = 0.350000; _invB2(1,2) = -0.000000; _invB2(1,3) = 0.000000; _invB2(1,4) = 0.003250; _invB2(1,5) = 0.000000; _invB2(2,0) = -0.000000; _invB2(2,1) = -0.000000; _invB2(2,2) = 0.350000; _invB2(2,3) = 0.000507; _invB2(2,4) = 0.000000; _invB2(2,5) = 0.001373; _invB2(3,0) = 0.350000; _invB2(3,1) = -0.000000; _invB2(3,2) = 0.000000; _invB2(3,3) = -0.000081; _invB2(3,4) = 0.000000; _invB2(3,5) = 0.008580; _invB2(4,0) = 0.000000; _invB2(4,1) = 0.350000; _invB2(4,2) = -0.000000; _invB2(4,3) = 0.000000; _invB2(4,4) = -0.003250; _invB2(4,5) = 0.000000; _invB2(5,0) = 0.000000; _invB2(5,1) = 0.000000; _invB2(5,2) = 0.350000; _invB2(5,3) = -0.000507; _invB2(5,4) = 0.000000; _invB2(5,5) = -0.001373;
+	_bA21(0,0) = -16.000000; _bA21(0,1) = 0.000000; _bA21(0,2) = 0.000000; _bA21(0,3) = 0.000000; _bA21(0,4) = 0.000000; _bA21(0,5) = 0.000000; _bA21(1,0) = 0.000000; _bA21(1,1) = -25.000000; _bA21(1,2) = 0.000000; _bA21(1,3) = 0.000000; _bA21(1,4) = 0.000000; _bA21(1,5) = 0.000000; _bA21(2,0) = 0.000000; _bA21(2,1) = 0.000000; _bA21(2,2) = -25.000000; _bA21(2,3) = 0.000000; _bA21(2,4) = 0.000000; _bA21(2,5) = 0.000000; _bA21(3,0) = 0.000000; _bA21(3,1) = 0.000000; _bA21(3,2) = 0.000000; _bA21(3,3) = -625.000000; _bA21(3,4) = 0.000000; _bA21(3,5) = 0.000000; _bA21(4,0) = 0.000000; _bA21(4,1) = 0.000000; _bA21(4,2) = 0.000000; _bA21(4,3) = 0.000000; _bA21(4,4) = -625.000000; _bA21(4,5) = 0.000000; _bA21(5,0) = 0.000000; _bA21(5,1) = 0.000000; _bA21(5,2) = 0.000000; _bA21(5,3) = 0.000000; _bA21(5,4) = 0.000000; _bA21(5,5) = -100.000000;
+	_M(0,0) = 4.000000; _M(0,1) = 0.000000; _M(0,2) = 0.000000; _M(0,3) = 0.000000; _M(0,4) = 0.000000; _M(0,5) = 0.000000; _M(1,0) = 0.000000; _M(1,1) = 5.000000; _M(1,2) = 0.000000; _M(1,3) = 0.000000; _M(1,4) = 0.000000; _M(1,5) = 0.000000; _M(2,0) = 0.000000; _M(2,1) = 0.000000; _M(2,2) = 5.000000; _M(2,3) = 0.000000; _M(2,4) = 0.000000; _M(2,5) = 0.000000; _M(3,0) = 0.000000; _M(3,1) = 0.000000; _M(3,2) = 0.000000; _M(3,3) = 25.000000; _M(3,4) = 0.000000; _M(3,5) = 0.000000; _M(4,0) = 0.000000; _M(4,1) = 0.000000; _M(4,2) = 0.000000; _M(4,3) = 0.000000; _M(4,4) = 25.000000; _M(4,5) = 0.000000; _M(5,0) = 0.000000; _M(5,1) = 0.000000; _M(5,2) = 0.000000; _M(5,3) = 0.000000; _M(5,4) = 0.000000; _M(5,5) = 10.000000;
+	_phi(0,0) = -1.000000; _phi(0,1) = -0.000000; _phi(0,2) = -0.000000; _phi(0,3) = -0.000000; _phi(0,4) = -0.000000; _phi(0,5) = -0.000000; _phi(1,0) = -0.000000; _phi(1,1) = -1.000000; _phi(1,2) = -0.000000; _phi(1,3) = -0.000000; _phi(1,4) = -0.000000; _phi(1,5) = -0.000000; _phi(2,0) = -0.000000; _phi(2,1) = -0.000000; _phi(2,2) = -1.000000; _phi(2,3) = -0.000000; _phi(2,4) = -0.000000; _phi(2,5) = -0.000000; _phi(3,0) = -0.000000; _phi(3,1) = -0.000000; _phi(3,2) = -0.000000; _phi(3,3) = -1.500000; _phi(3,4) = -0.000000; _phi(3,5) = -0.000000; _phi(4,0) = -0.000000; _phi(4,1) = -0.000000; _phi(4,2) = -0.000000; _phi(4,3) = -0.000000; _phi(4,4) = -1.500000; _phi(4,5) = -0.000000; _phi(5,0) = -0.000000; _phi(5,1) = -0.000000; _phi(5,2) = -0.000000; _phi(5,3) = -0.000000; _phi(5,4) = -0.000000; _phi(5,5) = -1.500000;
+	_S1(0,0) = 4.000000; _S1(0,1) = 0.000000; _S1(0,2) = 0.000000; _S1(0,3) = 0.000000; _S1(0,4) = 0.000000; _S1(0,5) = 0.000000; _S1(1,0) = 0.000000; _S1(1,1) = 5.000000; _S1(1,2) = 0.000000; _S1(1,3) = 0.000000; _S1(1,4) = 0.000000; _S1(1,5) = 0.000000; _S1(2,0) = 0.000000; _S1(2,1) = 0.000000; _S1(2,2) = 5.000000; _S1(2,3) = 0.000000; _S1(2,4) = 0.000000; _S1(2,5) = 0.000000; _S1(3,0) = 0.000000; _S1(3,1) = 0.000000; _S1(3,2) = 0.000000; _S1(3,3) = 25.000000; _S1(3,4) = 0.000000; _S1(3,5) = 0.000000; _S1(4,0) = 0.000000; _S1(4,1) = 0.000000; _S1(4,2) = 0.000000; _S1(4,3) = 0.000000; _S1(4,4) = 25.000000; _S1(4,5) = 0.000000; _S1(5,0) = 0.000000; _S1(5,1) = 0.000000; _S1(5,2) = 0.000000; _S1(5,3) = 0.000000; _S1(5,4) = 0.000000; _S1(5,5) = 10.000000;
+	_S2(0,0) = 1.000000; _S2(0,1) = 0.000000; _S2(0,2) = 0.000000; _S2(0,3) = 0.000000; _S2(0,4) = 0.000000; _S2(0,5) = 0.000000; _S2(1,0) = 0.000000; _S2(1,1) = 1.000000; _S2(1,2) = 0.000000; _S2(1,3) = 0.000000; _S2(1,4) = 0.000000; _S2(1,5) = 0.000000; _S2(2,0) = 0.000000; _S2(2,1) = 0.000000; _S2(2,2) = 1.000000; _S2(2,3) = 0.000000; _S2(2,4) = 0.000000; _S2(2,5) = 0.000000; _S2(3,0) = 0.000000; _S2(3,1) = 0.000000; _S2(3,2) = 0.000000; _S2(3,3) = 1.000000; _S2(3,4) = 0.000000; _S2(3,5) = 0.000000; _S2(4,0) = 0.000000; _S2(4,1) = 0.000000; _S2(4,2) = 0.000000; _S2(4,3) = 0.000000; _S2(4,4) = 1.000000; _S2(4,5) = 0.000000; _S2(5,0) = 0.000000; _S2(5,1) = 0.000000; _S2(5,2) = 0.000000; _S2(5,3) = 0.000000; _S2(5,4) = 0.000000; _S2(5,5) = 1.000000;
+	_P2(0,0) = 0.500000; _P2(0,1) = 0.000000; _P2(0,2) = 0.000000; _P2(0,3) = 0.000000; _P2(0,4) = 0.000000; _P2(0,5) = 0.000000; _P2(1,0) = 0.000000; _P2(1,1) = 0.500000; _P2(1,2) = 0.000000; _P2(1,3) = 0.000000; _P2(1,4) = 0.000000; _P2(1,5) = 0.000000; _P2(2,0) = 0.000000; _P2(2,1) = 0.000000; _P2(2,2) = 0.500000; _P2(2,3) = 0.000000; _P2(2,4) = 0.000000; _P2(2,5) = 0.000000; _P2(3,0) = 0.000000; _P2(3,1) = 0.000000; _P2(3,2) = 0.000000; _P2(3,3) = 0.333333; _P2(3,4) = 0.000000; _P2(3,5) = 0.000000; _P2(4,0) = 0.000000; _P2(4,1) = 0.000000; _P2(4,2) = 0.000000; _P2(4,3) = 0.000000; _P2(4,4) = 0.333333; _P2(4,5) = 0.000000; _P2(5,0) = 0.000000; _P2(5,1) = 0.000000; _P2(5,2) = 0.000000; _P2(5,3) = 0.000000; _P2(5,4) = 0.000000; _P2(5,5) = 0.333333;
+
+	_S2_norm = 2.45f;
+	_M_norm = 37.63f;
+	_k1 = 1.0f; _k2 = 1.0f; _k3 = 0.1f; _alpha = 0.0f;
+	_gamma = 1.0f;
 	parameters_updated();
 }
 
@@ -695,22 +708,47 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 	_rates_prev = rates;
 	_rates_prev_filtered = rates_filtered;
 
-	/* update integral only if we are not landed */
-	if (!_vehicle_land_detected.maybe_landed && !_vehicle_land_detected.landed) {
-		for (int i = AXIS_INDEX_ROLL; i < AXIS_COUNT; i++) {
-			// Check for positive control saturation
-			bool positive_saturation =
-				((i == AXIS_INDEX_ROLL) && _saturation_status.flags.roll_pos) ||
-				((i == AXIS_INDEX_PITCH) && _saturation_status.flags.pitch_pos) ||
-				((i == AXIS_INDEX_YAW) && _saturation_status.flags.yaw_pos);
+	// /* update integral only if we are not landed */
+	// if (!_vehicle_land_detected.maybe_landed && !_vehicle_land_detected.landed) {
+	// 	for (int i = AXIS_INDEX_ROLL; i < AXIS_COUNT; i++) {
+	// 		// Check for positive control saturation
+	// 		bool positive_saturation =
+	// 			((i == AXIS_INDEX_ROLL) && _saturation_status.flags.roll_pos) ||
+	// 			((i == AXIS_INDEX_PITCH) && _saturation_status.flags.pitch_pos) ||
+	// 			((i == AXIS_INDEX_YAW) && _saturation_status.flags.yaw_pos);
 
-	// // TESTING
-	// _virtual_control_0(0) = _p_control_att_0(0) + _partial_controls.control[0];
-	// _virtual_control_0(1) = _p_control_att_0(1) + _partial_controls.control[1];
-	// _virtual_control_0(2) = _p_control_att_0(2) + _partial_controls.control[2];
-	// _virtual_control_1(0) = _p_control_att_1(0) + _partial_controls.control[3];
-	// _virtual_control_1(1) = _p_control_att_1(1) + _partial_controls.control[4];
-	// _virtual_control_1(2) = _p_control_att_1(2) + _partial_controls.control[5];
+	/*
+	 * Sliding Mode Control Law
+	 * u = -inv(B2)*[-M^2 x1 + (M-phi)(S1 x1 + x2) + rho (P2 s)/(||P2 s||)]
+	 */
+	// Form x1: [px py pz phi theta psi]
+	float x1data[6] = {_partial_controls.control[0], _partial_controls.control[1], _partial_controls.control[2], _att_err(0), _att_err(1), _att_err(2)};
+	Vector<float,6> x1(x1data);
+
+	// Form x2: [vx vy vz r p y]
+	float x2data[6] = {_partial_controls.control[3], _partial_controls.control[4], _partial_controls.control[5], rates_err(0), rates_err(1), rates_err(2)};
+	Vector<float,6> x2(x2data);
+
+	// Sliding variable s
+	Vector<float,6> s = _S1*x1 + x2;
+
+	// Linear law ul
+	Vector<float,6> u_l = -_invB2 * (_bA21*x1 + (_M-_phi)*s);
+
+	// Calculate rho
+	float x_norm = sqrt(x1.norm_squared() + x2.norm_squared());
+	float rho = _S2_norm * (_M_norm * (_k1*x_norm + _k2) + _k3*u_l.norm() + _alpha) + _gamma;
+
+	// Combine Linear & Nonlinear law
+	Vector<float,6> P2_s = _P2*s;
+	Vector<float,6> u = u_l -_invB2 * rho * P2_s.unit();
+
+	_virtual_control_0(0) = u(0);
+	_virtual_control_0(1) = u(1);
+	_virtual_control_0(2) = u(2);
+	_virtual_control_1(0) = u(3);
+	_virtual_control_1(1) = u(4);
+	_virtual_control_1(2) = u(5);
 
 	/* Check for negative thrust
 	 * Correct by setting negative thrust to 0.1N and adding the difference to the other rotor

@@ -228,6 +228,18 @@ private:
 
 	matrix::Matrix<float,6,3> _torque_to_rotor;	/**< mapping from desired torque to rotor forces */
 
+	matrix::SquareMatrix<float,6> _invB2;		/**< SMC: inverse of B2 matrix */
+	matrix::SquareMatrix<float,6> _bA21;		/**< SMC: bar A21 matrix */
+	matrix::SquareMatrix<float,6> _M;		/**< SMC: M matrix */
+	matrix::SquareMatrix<float,6> _phi;		/**< SMC: phi matrix */
+	matrix::SquareMatrix<float,6> _S1;		/**< SMC: S1 matrix */
+	matrix::SquareMatrix<float,6> _S2;		/**< SMC: S2 matrix */
+	matrix::SquareMatrix<float,6> _P2;		/**< SMC: P2 matrix */
+	float _S2_norm;
+	float _M_norm;
+	float _k1, _k2, _k3, _alpha;
+	float _gamma;
+
 	matrix::Vector3f _att_err;			/**< attitude error vector */
 
 	matrix::Vector3f _virtual_control_0;		/**< Virtual control in Fx/Fy/Fz for rotor 0 */
