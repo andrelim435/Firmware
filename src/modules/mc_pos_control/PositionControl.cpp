@@ -115,8 +115,8 @@ partial_controls_s PositionControl::generatePartialControl()
 	// Calculate the partial control output for pos/vel
 	partial_controls_s _p_c = {};
 
-	const Vector3f pos_err = _pos_sp - _pos;
-	const Vector3f vel_err = _vel_sp - _vel;
+	const Vector3f pos_err = _pos - _pos_sp;
+	const Vector3f vel_err = _vel - _vel_sp;
 
 	// Pos and Vel in body frame
 	// Pos x/y/z

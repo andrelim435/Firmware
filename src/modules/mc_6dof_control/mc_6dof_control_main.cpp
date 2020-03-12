@@ -723,12 +723,14 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 	 */
 	// Form x1: [px py pz phi theta psi]
 	Vector3f pos(_partial_controls.control[0], _partial_controls.control[1], _partial_controls.control[2]);
+	// Vector3f pos(0,0,0);
 	pos = q.conjugate_inversed(pos);
 	float x1data[6] = {pos(0), pos(1), pos(2), _att_err(0), _att_err(1), _att_err(2)};
 	Vector<float,6> x1(x1data);
 
 	// Form x2: [vx vy vz r p y]
 	Vector3f vel(_partial_controls.control[3], _partial_controls.control[4], _partial_controls.control[5]);
+	// Vector3f vel(0,0,0);
 	vel = q.conjugate_inversed(vel);
 	float x2data[6] = {vel(0), vel(1), vel(2), rates_err(0), rates_err(1), rates_err(2)};
 	Vector<float,6> x2(x2data);
@@ -749,6 +751,7 @@ Multicopter6dofControl::control_attitude_rates(float dt)
 	_virtual_control_0(0) = u(0);
 	_virtual_control_0(1) = u(1);
 	_virtual_control_0(2) = u(2);
+
 	_virtual_control_1(0) = u(3);
 	_virtual_control_1(1) = u(4);
 	_virtual_control_1(2) = u(5);
@@ -783,6 +786,10 @@ Multicopter6dofControl::convert_virtual_input()
 	_virtual_control_0 += fg;
 	_virtual_control_1 += fg;
 
+	// Vector3f ft(0, 0, -_thrust_sp/2);
+	// _virtual_control_0 += ft;
+	// _virtual_control_1 += ft;
+
 	/* MATLAB code */
 	// // Convert to servo angles
 	// a1 = atan2(-F1(0), -F1(2));             % a = atan2(Fx, Fz)
@@ -793,14 +800,23 @@ Multicopter6dofControl::convert_virtual_input()
 	// b2 = atan2(F2(1), -F2(2)/cos(a2));  % b = atan2(Fy, Fz/cos(a))
 	// T2 = -F2(2)/cos(a2)/cos(b2);             % T = Fz / cos(a) / cos(b)
 
-	// Extract euler from rotation matrix
+	// Convert to servo angles
 	_att_control_0(0) = atan2f(-_virtual_control_0(0), _virtual_control_0(2)) /1.5f;
 	_att_control_0(1) = atan2f(_virtual_control_0(1), -_virtual_control_0(2)/cosf(_att_control_0(0))) /1.5f;
-	_att_control_0(2) = -_virtual_control_0(2) / cos(_att_control_0(0)) / cos(_att_control_0(1)) / _param_mpc_max_thrust.get();
+	_att_control_0(2) = sqrt(-_virtual_control_0(2) / cos(_att_control_0(0)) / cos(_att_control_0(1))) / _param_mpc_max_thrust.get();
 
 	_att_control_1(0) = atan2f(-_virtual_control_0(0), _virtual_control_0(2)) /1.5f;
 	_att_control_1(1) = atan2f(_virtual_control_0(1), -_virtual_control_0(2)/cosf(_att_control_1(0))) /1.5f;
-	_att_control_1(2) = -_virtual_control_0(2) / cos(_att_control_1(0)) / cos(_att_control_1(1)) / _param_mpc_max_thrust.get();
+	_att_control_1(2) = sqrt(-_virtual_control_0(2) / cos(_att_control_1(0)) / cos(_att_control_1(1))) / _param_mpc_max_thrust.get();
+
+	// Constrain actuator outputs
+	_att_control_0(0) = math::constrain(_att_control_0(0), -1.0f, 1.0f);
+	_att_control_0(1) = math::constrain(_att_control_0(1), -1.0f, 1.0f);
+	_att_control_1(0) = math::constrain(_att_control_1(0), -1.0f, 1.0f);
+	_att_control_1(1) = math::constrain(_att_control_1(1), -1.0f, 1.0f);
+
+	_att_control_0(2) = math::constrain(_att_control_0(2), 0.0f, 1.0f);
+	_att_control_1(2) = math::constrain(_att_control_1(2), 0.0f, 1.0f);
 
 	/* For now do all control calculations in SI units (N,m,etc) then convert to normalised (-1 .. 1) range in the final step
 	*  Consider doing all calculations normalised?
